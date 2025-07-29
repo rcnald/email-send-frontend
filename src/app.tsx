@@ -2,8 +2,7 @@ import { FileUpload } from "./components/file-upload"
 
 export function App() {
   return (
-    <div className='mx-auto w-70'>
-      <h1>Email Send</h1>
+    <div className='flex min-h-screen w-full flex-col items-center justify-center'>
       <FileUpload />
     </div>
   )
