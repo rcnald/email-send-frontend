@@ -32,7 +32,7 @@ export const FileUpload = () => {
   const hasMoreThanOneFile = files.length > 1
 
   return (
-    <div className='flex w-100 flex-col gap-2'>
+    <div className='flex w-full flex-col gap-2'>
       <button
         className='flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border border-primary border-dashed bg-accent p-4 transition-colors hover:bg-accent/50 has-disabled:pointer-events-none has-[input:focus]:border-ring has-disabled:opacity-50 has-[input:focus]:ring-[3px] has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50'
         data-dragging={isDragging}
@@ -46,7 +46,7 @@ export const FileUpload = () => {
       >
         <input
           {...getInputProps()}
-          aria-label='Upload files'
+          aria-label='Anexar arquivos'
           className='sr-only'
         />
 
@@ -84,7 +84,7 @@ export const FileUpload = () => {
 
         {hasMoreThanOneFile ? (
           <div>
-            <Button onClick={clearFiles} size='sm'>
+            <Button onClick={clearFiles} size='sm' variant='link'>
               Remover todos os arquivos
             </Button>
           </div>
