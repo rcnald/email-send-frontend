@@ -9,6 +9,7 @@ export function App() {
       <div className='grid w-full max-w-100 grid-cols-1 gap-10 '>
         <FileStepper />
         <FileUpload />
+
         <Button
           className='group w-full place-self-end lg:w-fit'
           variant='default'

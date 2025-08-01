@@ -116,6 +116,7 @@ function StepperItem({
   const isCompleted = completed || step < activeStep
   const isActive = step === activeStep
   const isLoading = loading && step === activeStep
+  // const isDisabled = disabled || (step > activeStep && !isLoading)
 
   if (isCompleted) {
     state = "completed"

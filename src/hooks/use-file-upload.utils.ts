@@ -72,12 +72,12 @@ export const validateFile = (
   return null
 }
 
-export const filterValidFiles = (
+export const validateFilesToUpload = (
   files: File[],
   existingFiles: FileItem[],
   options: Pick<FileUploadOptions, "maxSize" | "accept">
-): { validFiles: FileItem[]; errors: string[] } => {
-  const validFiles: FileItem[] = []
+): { validatedFiles: FileItem[]; errors: string[] } => {
+  const validatedFiles: FileItem[] = []
   const errors: string[] = []
 
   files.forEach((file) => {
@@ -97,11 +97,13 @@ export const filterValidFiles = (
       return
     }
 
-    validFiles.push({
+    validatedFiles.push({
       file,
       id: generateUniqueId(file),
+      status: "pending",
+      progress: 0,
     })
   })
 
-  return { validFiles, errors }
+  return { validatedFiles, errors }
 }

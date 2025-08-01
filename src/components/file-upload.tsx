@@ -2,12 +2,38 @@ import { AlertCircleIcon, FileUpIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { type FileItem, useFileUpload } from "@/hooks/use-file-upload"
 import { formatBytes } from "@/hooks/use-file-upload.utils"
+import { useFileStore } from "@/store/file-store"
 import { FileArchiveIcon } from "./icons/file-archive"
 
 export const FileUpload = () => {
   const maxFiles = 5
   const maxSize = 100 * 1024 * 1024 // 100MB
   const accept = ".zip"
+
+  const actions = useFileStore((state) => state.actions)
+  const storeFiles = useFileStore((state) => state.files)
+
+  const uploader = ({
+    onSuccess,
+    onProgress,
+  }: {
+    fileId: string
+    onSuccess: () => void
+    onError: (error: Error) => void
+    onProgress: (progress: number) => void
+  }) => {
+    // Simulate upload process
+    onProgress(0)
+
+    setTimeout(() => {
+      onProgress(50)
+    }, 1000)
+
+    setTimeout(() => {
+      onProgress(100)
+      onSuccess()
+    }, 2000)
+  }
 
   const [
     { files, isDragging, errors },
@@ -26,6 +52,8 @@ export const FileUpload = () => {
     maxFiles,
     maxSize,
     accept,
+    onFilesChange: actions.updateFiles,
+    uploader,
   })
 
   const hasErrors = errors.length > 0
@@ -78,7 +106,7 @@ export const FileUpload = () => {
       </div>
 
       <div className='space-y-2'>
-        {files.map((file) => (
+        {storeFiles.map((file) => (
           <FileListItem file={file} key={file.id} removeFile={removeFile} />
         ))}
 
@@ -101,6 +129,9 @@ const FileListItem = ({
   file: FileItem
   removeFile: (id: string) => void
 }) => {
+  const handleRemove = () => {
+    removeFile(file.id)
+  }
   return (
     <div
       className='flex items-center justify-between gap-2 rounded-lg border bg-background p-1.5 pe-3'
@@ -121,7 +152,7 @@ const FileListItem = ({
       <Button
         aria-label='Remove file'
         className='-me-2 size-8 text-muted-foreground/80 hover:bg-transparent hover:text-foreground'
-        onClick={() => removeFile(file.id)}
+        onClick={handleRemove}
         size='icon'
         variant='ghost'
       >

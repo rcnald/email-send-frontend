@@ -1,5 +1,4 @@
 import { Send, Upload, User } from "lucide-react"
-
 import {
   Stepper,
   StepperIndicator,
@@ -22,6 +21,7 @@ export function FileStepper() {
           </StepperTrigger>
           <StepperSeparator />
         </StepperItem>
+
         <StepperItem className='not-last:flex-1' step={2}>
           <StepperTrigger>
             <StepperIndicator asChild>
@@ -31,7 +31,8 @@ export function FileStepper() {
           </StepperTrigger>
           <StepperSeparator />
         </StepperItem>
-        <StepperItem className='not-last:flex-1' disabled step={3}>
+
+        <StepperItem className='not-last:flex-1' disabled={true} step={3}>
           <StepperTrigger>
             <StepperIndicator asChild>
               <Send aria-hidden='true' size={14} />

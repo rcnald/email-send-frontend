@@ -4,14 +4,25 @@ import {
   type DragEvent,
   type InputHTMLAttributes,
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from "react"
-import { filterValidFiles } from "./use-file-upload.utils"
+import { validateFilesToUpload } from "./use-file-upload.utils"
+
+export type Uploader = (params: {
+  fileId: string
+  onSuccess: () => void
+  onError: (error: Error) => void
+  onProgress: (progress: number) => void
+}) => void
 
 export type FileItem = {
   id: string
   file: File
+  status: "pending" | "uploading" | "completed" | "error"
+  progress: number
+  attachmentId?: string | null
 }
 
 export type FileUploadOptions = {
@@ -21,6 +32,7 @@ export type FileUploadOptions = {
   multiple?: boolean
   onFilesChange?: (files: FileItem[]) => void
   onFilesAdded?: (addedFiles: FileItem[]) => void
+  uploader?: Uploader
 }
 
 export type FileUploadState = {
@@ -57,6 +69,7 @@ export const useFileUpload = (
     multiple = false,
     onFilesChange,
     onFilesAdded,
+    uploader,
   } = options
 
   const [state, setState] = useState<FileUploadState>({
@@ -66,6 +79,10 @@ export const useFileUpload = (
   })
 
   const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    onFilesChange?.(state.files)
+  }, [state.files, onFilesChange])
 
   const clearFiles = useCallback(() => {
     setState((prev) => {
@@ -79,11 +96,57 @@ export const useFileUpload = (
         errors: [],
       }
 
-      onFilesChange?.(newState.files)
-
       return newState
     })
-  }, [onFilesChange])
+  }, [])
+
+  const uploadFiles = useCallback(
+    ({ ids }: { ids: string[] }) => {
+      ids.forEach((id) => {
+        uploader?.({
+          fileId: id,
+          onSuccess: () => {
+            setState((prev) => {
+              const filesToUpdateStatus = prev.files.map((stateFile) => {
+                if (id === stateFile.id) {
+                  return {
+                    ...stateFile,
+                    status: "completed" as const,
+                  }
+                }
+                return stateFile
+              })
+
+              return { ...prev, files: filesToUpdateStatus }
+            })
+          },
+          onError: (error) => {
+            setState((prev) => ({
+              ...prev,
+              errors: [...prev.errors, error.message],
+            }))
+          },
+          onProgress: (progress) => {
+            setState((prev) => {
+              const filesToUpdateProgress = prev.files.map((stateFile) => {
+                if (id === stateFile.id) {
+                  return {
+                    ...stateFile,
+                    progress,
+                    status: "uploading" as const,
+                  }
+                }
+                return stateFile
+              })
+
+              return { ...prev, files: filesToUpdateProgress }
+            })
+          },
+        })
+      })
+    },
+    [uploader]
+  )
 
   const addFiles = useCallback(
     (rawFiles: FileList) => {
@@ -100,15 +163,12 @@ export const useFileUpload = (
         clearFiles()
       }
 
-      const { validFiles, errors: validationErrors } = filterValidFiles(
-        files,
-        state.files,
-        { maxSize, accept }
-      )
+      const { validatedFiles: filesToAdd, errors: validationErrors } =
+        validateFilesToUpload(files, state.files, { maxSize, accept })
 
       errors.push(...validationErrors)
 
-      const isTooManyFiles = state.files.length + validFiles.length > maxFiles
+      const isTooManyFiles = state.files.length + filesToAdd.length > maxFiles
 
       if (isTooManyFiles) {
         errors.push(`Você pode enviar no máximo ${maxFiles} arquivos.`)
@@ -125,30 +185,32 @@ export const useFileUpload = (
         }))
       }
 
-      const hasValidFiles = validFiles.length > 0
+      const hasFilesToAdd = filesToAdd.length > 0
 
-      if (!hasValidFiles) {
+      if (!hasFilesToAdd) {
         return
       }
 
-      onFilesAdded?.(validFiles)
+      const filesToUpdate = multiple
+        ? [...state.files, ...filesToAdd]
+        : filesToAdd
+
+      onFilesAdded?.(filesToAdd)
 
       setState((prev) => {
-        const filesToUpdate = multiple
-          ? [...prev.files, ...validFiles]
-          : validFiles
-
-        onFilesChange?.(filesToUpdate)
-
         return {
           ...prev,
           files: filesToUpdate,
         }
       })
 
+      onFilesChange?.(filesToUpdate)
+
       if (inputRef.current) {
         inputRef.current.value = ""
       }
+
+      uploadFiles?.({ ids: filesToAdd.map((file) => file.id) })
     },
     [
       state.files,
@@ -159,26 +221,23 @@ export const useFileUpload = (
       clearFiles,
       onFilesChange,
       onFilesAdded,
+      uploadFiles,
     ]
   )
 
-  const removeFile = useCallback(
-    (id: string) => {
-      setState((prev) => {
-        const filesWithOutRemovedOne = prev.files.filter(
-          (file) => file.id !== id
-        )
-        onFilesChange?.(filesWithOutRemovedOne)
+  const removeFile = useCallback((id: string) => {
+    setState((prev) => {
+      const filesWithOutRemovedOne = prev.files.filter((file) => file.id !== id)
 
-        return {
-          ...prev,
-          files: filesWithOutRemovedOne,
-          errors: [],
-        }
-      })
-    },
-    [onFilesChange]
-  )
+      const result = {
+        ...prev,
+        files: filesWithOutRemovedOne,
+        errors: [],
+      }
+
+      return result
+    })
+  }, [])
 
   const clearErrors = useCallback(() => {
     setState((prev) => ({
