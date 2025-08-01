@@ -5,13 +5,13 @@ import {
   type InputHTMLAttributes,
   useCallback,
   useEffect,
+  useReducer,
   useRef,
-  useState,
 } from "react"
 import { validateFilesToUpload } from "./use-file-upload.utils"
 
 export type Uploader = (params: {
-  fileId: string
+  file: FileItem
   onSuccess: () => void
   onError: (error: Error) => void
   onProgress: (progress: number) => void
@@ -59,6 +59,71 @@ export type FileUploadActions = {
   }
 }
 
+type FileUploadAction =
+  | { type: "ADD_FILES"; payload: FileItem[] }
+  | { type: "REMOVE_FILE"; payload: { id: string } }
+  | { type: "RESET" }
+  | { type: "CLEAR_ERRORS" }
+  | { type: "CLEAR_FILES" }
+  | { type: "MARK_FILE_AS_COMPLETED"; payload: { id: string } }
+  | { type: "ADD_ERRORS"; payload: string[] }
+  | {
+      type: "UPDATE_FILE_PROGRESS"
+      payload: { file: FileItem; progress: number }
+    }
+  | { type: "UPDATE_DRAGGING"; payload: boolean }
+
+const fileUploadReducer = (
+  state: FileUploadState,
+  action: FileUploadAction
+) => {
+  switch (action.type) {
+    case "ADD_FILES":
+      return { ...state, files: [...state.files, ...action.payload] }
+    case "REMOVE_FILE":
+      return {
+        ...state,
+        files: state.files.filter((file) => file.id !== action.payload.id),
+      }
+    case "RESET":
+      return { files: [], isDragging: false, errors: [] }
+    case "CLEAR_ERRORS":
+      return { ...state, errors: [] }
+    case "CLEAR_FILES":
+      return { ...state, files: [] }
+    case "MARK_FILE_AS_COMPLETED":
+      return {
+        ...state,
+        files: state.files.map((file) =>
+          file.id === action.payload.id
+            ? { ...file, status: "completed" as const, progress: 100 }
+            : file
+        ),
+      }
+    case "ADD_ERRORS":
+      return {
+        ...state,
+        errors: [...state.errors, ...action.payload],
+      }
+    case "UPDATE_FILE_PROGRESS":
+      return {
+        ...state,
+        files: state.files.map((file) =>
+          file.id === action.payload.file.id
+            ? { ...file, progress: action.payload.progress }
+            : file
+        ),
+      }
+    case "UPDATE_DRAGGING":
+      return {
+        ...state,
+        isDragging: action.payload,
+      }
+    default:
+      throw new Error("Ação não esperada")
+  }
+}
+
 export const useFileUpload = (
   options: FileUploadOptions = {}
 ): [FileUploadState, FileUploadActions] => {
@@ -72,7 +137,7 @@ export const useFileUpload = (
     uploader,
   } = options
 
-  const [state, setState] = useState<FileUploadState>({
+  const [state, dispatch] = useReducer(fileUploadReducer, {
     files: [],
     isDragging: false,
     errors: [],
@@ -85,61 +150,31 @@ export const useFileUpload = (
   }, [state.files, onFilesChange])
 
   const clearFiles = useCallback(() => {
-    setState((prev) => {
-      if (inputRef.current) {
-        inputRef.current.value = ""
-      }
+    if (inputRef.current) {
+      inputRef.current.value = ""
+    }
 
-      const newState = {
-        ...prev,
-        files: [],
-        errors: [],
-      }
-
-      return newState
-    })
+    dispatch({ type: "CLEAR_FILES" })
   }, [])
 
   const uploadFiles = useCallback(
-    ({ ids }: { ids: string[] }) => {
-      ids.forEach((id) => {
+    ({ files }: { files: FileItem[] }) => {
+      files.forEach((file) => {
         uploader?.({
-          fileId: id,
+          file,
           onSuccess: () => {
-            setState((prev) => {
-              const filesToUpdateStatus = prev.files.map((stateFile) => {
-                if (id === stateFile.id) {
-                  return {
-                    ...stateFile,
-                    status: "completed" as const,
-                  }
-                }
-                return stateFile
-              })
-
-              return { ...prev, files: filesToUpdateStatus }
+            dispatch({
+              type: "MARK_FILE_AS_COMPLETED",
+              payload: { id: file.id },
             })
           },
           onError: (error) => {
-            setState((prev) => ({
-              ...prev,
-              errors: [...prev.errors, error.message],
-            }))
+            dispatch({ type: "ADD_ERRORS", payload: [error.message] })
           },
           onProgress: (progress) => {
-            setState((prev) => {
-              const filesToUpdateProgress = prev.files.map((stateFile) => {
-                if (id === stateFile.id) {
-                  return {
-                    ...stateFile,
-                    progress,
-                    status: "uploading" as const,
-                  }
-                }
-                return stateFile
-              })
-
-              return { ...prev, files: filesToUpdateProgress }
+            dispatch({
+              type: "UPDATE_FILE_PROGRESS",
+              payload: { file, progress },
             })
           },
         })
@@ -157,7 +192,7 @@ export const useFileUpload = (
       const files = Array.from(rawFiles)
       const errors: string[] = []
 
-      setState((prev) => ({ ...prev, errors: [] }))
+      dispatch({ type: "CLEAR_ERRORS" })
 
       if (!multiple) {
         clearFiles()
@@ -172,17 +207,15 @@ export const useFileUpload = (
 
       if (isTooManyFiles) {
         errors.push(`Você pode enviar no máximo ${maxFiles} arquivos.`)
-        setState((prev) => ({ ...prev, errors }))
+        dispatch({ type: "ADD_ERRORS", payload: errors })
         return
       }
 
       const hasErrors = errors.length > 0
 
       if (hasErrors) {
-        setState((prev) => ({
-          ...prev,
-          errors,
-        }))
+        dispatch({ type: "ADD_ERRORS", payload: errors })
+        return
       }
 
       const hasFilesToAdd = filesToAdd.length > 0
@@ -197,12 +230,7 @@ export const useFileUpload = (
 
       onFilesAdded?.(filesToAdd)
 
-      setState((prev) => {
-        return {
-          ...prev,
-          files: filesToUpdate,
-        }
-      })
+      dispatch({ type: "ADD_FILES", payload: filesToUpdate })
 
       onFilesChange?.(filesToUpdate)
 
@@ -210,7 +238,7 @@ export const useFileUpload = (
         inputRef.current.value = ""
       }
 
-      uploadFiles?.({ ids: filesToAdd.map((file) => file.id) })
+      uploadFiles?.({ files: filesToAdd })
     },
     [
       state.files,
@@ -226,31 +254,18 @@ export const useFileUpload = (
   )
 
   const removeFile = useCallback((id: string) => {
-    setState((prev) => {
-      const filesWithOutRemovedOne = prev.files.filter((file) => file.id !== id)
-
-      const result = {
-        ...prev,
-        files: filesWithOutRemovedOne,
-        errors: [],
-      }
-
-      return result
-    })
+    dispatch({ type: "REMOVE_FILE", payload: { id } })
   }, [])
 
   const clearErrors = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      errors: [],
-    }))
+    dispatch({ type: "CLEAR_ERRORS" })
   }, [])
 
   const handleDragEnter = useCallback((e: DragEvent<HTMLElement>) => {
     e.preventDefault()
     e.stopPropagation()
 
-    setState((prev) => ({ ...prev, isDragging: true }))
+    dispatch({ type: "UPDATE_DRAGGING", payload: true })
   }, [])
 
   const handleDragLeave = useCallback((e: DragEvent<HTMLElement>) => {
@@ -261,7 +276,7 @@ export const useFileUpload = (
       return
     }
 
-    setState((prev) => ({ ...prev, isDragging: false }))
+    dispatch({ type: "UPDATE_DRAGGING", payload: false })
   }, [])
 
   const handleDragOver = useCallback((e: DragEvent<HTMLElement>) => {
@@ -273,7 +288,8 @@ export const useFileUpload = (
     (e: DragEvent<HTMLElement>) => {
       e.preventDefault()
       e.stopPropagation()
-      setState((prev) => ({ ...prev, isDragging: false }))
+
+      dispatch({ type: "UPDATE_DRAGGING", payload: false })
 
       if (inputRef.current?.disabled) {
         return

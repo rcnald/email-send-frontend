@@ -17,12 +17,13 @@ export const FileUpload = () => {
     onSuccess,
     onProgress,
   }: {
-    fileId: string
+    file: FileItem
     onSuccess: () => void
     onError: (error: Error) => void
     onProgress: (progress: number) => void
   }) => {
     // Simulate upload process
+
     onProgress(0)
 
     setTimeout(() => {
