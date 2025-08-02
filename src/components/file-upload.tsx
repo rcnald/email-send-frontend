@@ -2,39 +2,13 @@ import { AlertCircleIcon, FileUpIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { type FileItem, useFileUpload } from "@/hooks/use-file-upload"
 import { formatBytes } from "@/hooks/use-file-upload.utils"
-import { useFileStore } from "@/store/file-store"
+import { uploader } from "@/services/uploader"
 import { FileArchiveIcon } from "./icons/file-archive"
 
 export const FileUpload = () => {
   const maxFiles = 5
   const maxSize = 100 * 1024 * 1024 // 100MB
   const accept = ".zip"
-
-  const actions = useFileStore((state) => state.actions)
-  const storeFiles = useFileStore((state) => state.files)
-
-  const uploader = ({
-    onSuccess,
-    onProgress,
-  }: {
-    file: FileItem
-    onSuccess: () => void
-    onError: (error: Error) => void
-    onProgress: (progress: number) => void
-  }) => {
-    // Simulate upload process
-
-    onProgress(0)
-
-    setTimeout(() => {
-      onProgress(50)
-    }, 1000)
-
-    setTimeout(() => {
-      onProgress(100)
-      onSuccess()
-    }, 2000)
-  }
 
   const [
     { files, isDragging, errors },
@@ -53,7 +27,6 @@ export const FileUpload = () => {
     maxFiles,
     maxSize,
     accept,
-    onFilesChange: actions.updateFiles,
     uploader,
   })
 
@@ -107,7 +80,7 @@ export const FileUpload = () => {
       </div>
 
       <div className='space-y-2'>
-        {storeFiles.map((file) => (
+        {files.map((file) => (
           <FileListItem file={file} key={file.id} removeFile={removeFile} />
         ))}
 

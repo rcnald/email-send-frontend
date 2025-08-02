@@ -9,17 +9,32 @@ export type UploadFileItem = {
 }
 
 export interface FileStoreState {
-  files: UploadFileItem[]
+  uploadedFiles: UploadFileItem[]
   actions: {
-    updateFiles: (files: UploadFileItem[]) => void
+    addUploadedFile: (file: UploadFileItem) => void
+    removeUploadedFile: (id: string) => void
+    clearUploadedFiles: () => void
   }
 }
 
 export const useFileStore = create<FileStoreState>((set) => ({
-  files: [],
+  uploadedFiles: [],
   actions: {
-    updateFiles: (newFiles) => {
-      set(() => ({ files: newFiles }))
+    addUploadedFile: (newFile) => {
+      set((state) => ({
+        uploadedFiles: [
+          ...state.uploadedFiles,
+          { ...newFile, status: "completed", progress: 100 },
+        ],
+      }))
+    },
+    removeUploadedFile: (id) => {
+      set((state) => ({
+        uploadedFiles: state.uploadedFiles.filter((file) => file.id !== id),
+      }))
+    },
+    clearUploadedFiles: () => {
+      set(() => ({ uploadedFiles: [] }))
     },
   },
 }))

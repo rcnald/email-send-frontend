@@ -4,18 +4,12 @@ import {
   type DragEvent,
   type InputHTMLAttributes,
   useCallback,
-  useEffect,
   useReducer,
   useRef,
 } from "react"
+import type { Uploader } from "@/services/uploader"
+import { useFileStore } from "@/store/file-store"
 import { validateFilesToUpload } from "./use-file-upload.utils"
-
-export type Uploader = (params: {
-  file: FileItem
-  onSuccess: () => void
-  onError: (error: Error) => void
-  onProgress: (progress: number) => void
-}) => void
 
 export type FileItem = {
   id: string
@@ -36,7 +30,16 @@ export type FileUploadOptions = {
 }
 
 export type FileUploadState = {
+  localFiles: FileItem[]
+  uploadedFiles: FileItem[]
   files: FileItem[]
+  isDragging: boolean
+  errors: string[]
+}
+
+export type FileUploadLocalState = {
+  localFiles: FileItem[]
+  cancelledFiles: Set<string>
   isDragging: boolean
   errors: string[]
 }
@@ -62,10 +65,9 @@ export type FileUploadActions = {
 type FileUploadAction =
   | { type: "ADD_FILES"; payload: FileItem[] }
   | { type: "REMOVE_FILE"; payload: { id: string } }
-  | { type: "RESET" }
+  | { type: "CANCEL_FILE"; payload: { id: string } }
   | { type: "CLEAR_ERRORS" }
   | { type: "CLEAR_FILES" }
-  | { type: "MARK_FILE_AS_COMPLETED"; payload: { id: string } }
   | { type: "ADD_ERRORS"; payload: string[] }
   | {
       type: "UPDATE_FILE_PROGRESS"
@@ -74,32 +76,31 @@ type FileUploadAction =
   | { type: "UPDATE_DRAGGING"; payload: boolean }
 
 const fileUploadReducer = (
-  state: FileUploadState,
+  state: FileUploadLocalState,
   action: FileUploadAction
 ) => {
   switch (action.type) {
     case "ADD_FILES":
-      return { ...state, files: [...state.files, ...action.payload] }
+      return { ...state, localFiles: [...state.localFiles, ...action.payload] }
     case "REMOVE_FILE":
       return {
         ...state,
-        files: state.files.filter((file) => file.id !== action.payload.id),
+        localFiles: state.localFiles.filter(
+          (file) => file.id !== action.payload.id
+        ),
       }
-    case "RESET":
-      return { files: [], isDragging: false, errors: [] }
+    case "CANCEL_FILE":
+      return {
+        ...state,
+        localFiles: state.localFiles.filter(
+          (file) => file.id !== action.payload.id
+        ),
+        cancelledFiles: new Set([...state.cancelledFiles, action.payload.id]),
+      }
     case "CLEAR_ERRORS":
       return { ...state, errors: [] }
     case "CLEAR_FILES":
-      return { ...state, files: [] }
-    case "MARK_FILE_AS_COMPLETED":
-      return {
-        ...state,
-        files: state.files.map((file) =>
-          file.id === action.payload.id
-            ? { ...file, status: "completed" as const, progress: 100 }
-            : file
-        ),
-      }
+      return { ...state, localFiles: [] }
     case "ADD_ERRORS":
       return {
         ...state,
@@ -108,7 +109,7 @@ const fileUploadReducer = (
     case "UPDATE_FILE_PROGRESS":
       return {
         ...state,
-        files: state.files.map((file) =>
+        localFiles: state.localFiles.map((file) =>
           file.id === action.payload.file.id
             ? { ...file, progress: action.payload.progress }
             : file
@@ -137,17 +138,25 @@ export const useFileUpload = (
     uploader,
   } = options
 
-  const [state, dispatch] = useReducer(fileUploadReducer, {
-    files: [],
+  const [localState, dispatch] = useReducer(fileUploadReducer, {
+    localFiles: [],
+    cancelledFiles: new Set<string>(),
     isDragging: false,
     errors: [],
   })
 
+  const { uploadedFiles, actions } = useFileStore()
+
   const inputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    onFilesChange?.(state.files)
-  }, [state.files, onFilesChange])
+  const stateRef = useRef(localState)
+  stateRef.current = localState
+
+  const isFileCancelled = useCallback((file: FileItem) => {
+    return stateRef.current.cancelledFiles.has(file.id)
+  }, [])
+
+  const allFiles = [...uploadedFiles, ...localState.localFiles]
 
   const clearFiles = useCallback(() => {
     if (inputRef.current) {
@@ -155,7 +164,8 @@ export const useFileUpload = (
     }
 
     dispatch({ type: "CLEAR_FILES" })
-  }, [])
+    actions.clearUploadedFiles()
+  }, [actions.clearUploadedFiles])
 
   const uploadFiles = useCallback(
     ({ files }: { files: FileItem[] }) => {
@@ -163,15 +173,34 @@ export const useFileUpload = (
         uploader?.({
           file,
           onSuccess: () => {
-            dispatch({
-              type: "MARK_FILE_AS_COMPLETED",
-              payload: { id: file.id },
-            })
+            if (isFileCancelled(file)) {
+              return
+            }
+
+            dispatch({ type: "REMOVE_FILE", payload: { id: file.id } })
+
+            const completedFile = {
+              ...file,
+              attachmentId: file.id,
+            }
+
+            actions.addUploadedFile(completedFile)
           },
           onError: (error) => {
-            dispatch({ type: "ADD_ERRORS", payload: [error.message] })
+            if (isFileCancelled(file)) {
+              return
+            }
+
+            dispatch({
+              type: "ADD_ERRORS",
+              payload: [error.message],
+            })
           },
           onProgress: (progress) => {
+            if (isFileCancelled(file)) {
+              return
+            }
+
             dispatch({
               type: "UPDATE_FILE_PROGRESS",
               payload: { file, progress },
@@ -180,7 +209,7 @@ export const useFileUpload = (
         })
       })
     },
-    [uploader]
+    [uploader, actions.addUploadedFile, isFileCancelled]
   )
 
   const addFiles = useCallback(
@@ -199,11 +228,12 @@ export const useFileUpload = (
       }
 
       const { validatedFiles: filesToAdd, errors: validationErrors } =
-        validateFilesToUpload(files, state.files, { maxSize, accept })
+        validateFilesToUpload(files, localState.localFiles, { maxSize, accept })
 
       errors.push(...validationErrors)
 
-      const isTooManyFiles = state.files.length + filesToAdd.length > maxFiles
+      const isTooManyFiles =
+        localState.localFiles.length + filesToAdd.length > maxFiles
 
       if (isTooManyFiles) {
         errors.push(`Você pode enviar no máximo ${maxFiles} arquivos.`)
@@ -225,7 +255,7 @@ export const useFileUpload = (
       }
 
       const filesToUpdate = multiple
-        ? [...state.files, ...filesToAdd]
+        ? [...localState.localFiles, ...filesToAdd]
         : filesToAdd
 
       onFilesAdded?.(filesToAdd)
@@ -241,7 +271,7 @@ export const useFileUpload = (
       uploadFiles?.({ files: filesToAdd })
     },
     [
-      state.files,
+      localState.localFiles,
       maxFiles,
       multiple,
       maxSize,
@@ -253,9 +283,19 @@ export const useFileUpload = (
     ]
   )
 
-  const removeFile = useCallback((id: string) => {
-    dispatch({ type: "REMOVE_FILE", payload: { id } })
-  }, [])
+  const removeFile = useCallback(
+    (id: string) => {
+      const isLocalFile = localState.localFiles.some((file) => file.id === id)
+
+      if (isLocalFile) {
+        dispatch({ type: "CANCEL_FILE", payload: { id } })
+        return
+      }
+
+      actions.removeUploadedFile(id)
+    },
+    [actions.removeUploadedFile, localState.localFiles]
+  )
 
   const clearErrors = useCallback(() => {
     dispatch({ type: "CLEAR_ERRORS" })
@@ -334,7 +374,13 @@ export const useFileUpload = (
   )
 
   return [
-    state,
+    {
+      localFiles: localState.localFiles,
+      files: allFiles,
+      uploadedFiles,
+      isDragging: localState.isDragging,
+      errors: localState.errors,
+    },
     {
       addFiles,
       removeFile,
