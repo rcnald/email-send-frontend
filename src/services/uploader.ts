@@ -1,31 +1,45 @@
 import type { FileItem } from "@/hooks/use-file-upload"
+import { api } from "@/lib/axios"
 
 export type Uploader = (params: {
   file: FileItem
-  onSuccess: () => void
+  onSuccess: (attachmentId: string) => void
   onError: (error: Error) => void
   onProgress: (progress: number) => void
 }) => void
 
-export const uploader = ({
+export const uploader = async ({
+  file,
   onSuccess,
+  onError,
   onProgress,
 }: {
   file: FileItem
-  onSuccess: () => void
+  onSuccess: (attachmentId: string) => void
   onError: (error: Error) => void
   onProgress: (progress: number) => void
 }) => {
-  // Simulate upload process
+  try {
+    const formData = new FormData()
+    formData.append("attachmentFile", file.file)
 
-  onProgress(0)
+    const { data } = await api.post("/attachments", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const progress = Math.round(
+            (progressEvent.loaded / progressEvent.total) * 100
+          )
+          onProgress(progress)
+        }
+      },
+    })
 
-  setTimeout(() => {
-    onProgress(50)
-  }, 1000)
-
-  setTimeout(() => {
-    onProgress(100)
-    onSuccess()
-  }, 2000)
+    const attachmentId: string = data?.attachmentId
+    onSuccess(attachmentId)
+  } catch (error) {
+    onError(error as Error)
+  }
 }

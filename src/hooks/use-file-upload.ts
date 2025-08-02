@@ -14,6 +14,8 @@ import { validateFilesToUpload } from "./use-file-upload.utils"
 export type FileItem = {
   id: string
   file: File
+  name: string
+  size: number
   status: "pending" | "uploading" | "completed" | "error"
   progress: number
   attachmentId?: string | null
@@ -145,7 +147,8 @@ export const useFileUpload = (
     errors: [],
   })
 
-  const { uploadedFiles, actions } = useFileStore()
+  const actions = useFileStore((state) => state.actions)
+  const uploadedFiles = useFileStore((state) => state.uploadedFiles)
 
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -172,7 +175,7 @@ export const useFileUpload = (
       files.forEach((file) => {
         uploader?.({
           file,
-          onSuccess: () => {
+          onSuccess: (attachmentId) => {
             if (isFileCancelled(file)) {
               return
             }
@@ -181,7 +184,7 @@ export const useFileUpload = (
 
             const completedFile = {
               ...file,
-              attachmentId: file.id,
+              attachmentId,
             }
 
             actions.addUploadedFile(completedFile)

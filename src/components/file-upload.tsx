@@ -4,6 +4,7 @@ import { type FileItem, useFileUpload } from "@/hooks/use-file-upload"
 import { formatBytes } from "@/hooks/use-file-upload.utils"
 import { uploader } from "@/services/uploader"
 import { FileArchiveIcon } from "./icons/file-archive"
+import { Progress } from "./ui/progress"
 
 export const FileUpload = () => {
   const maxFiles = 5
@@ -111,15 +112,16 @@ const FileListItem = ({
       className='flex items-center justify-between gap-2 rounded-lg border bg-background p-1.5 pe-3'
       key={file.id}
     >
-      <div className='flex items-center gap-3 overflow-hidden'>
+      <div className='flex w-full items-center gap-3 overflow-hidden'>
         <div className='flex aspect-square size-10 shrink-0 items-center justify-center rounded'>
           <FileArchiveIcon className='size-5 text-primary opacity-60' />
         </div>
-        <div className='flex min-w-0 flex-col'>
-          <p className='truncate font-medium text-[13px]'>{file.file.name}</p>
+        <div className='flex w-full flex-col py-1'>
+          <p className='truncate font-medium text-[13px]'>{file.name}</p>
           <p className='text-muted-foreground text-xs'>
-            {formatBytes(file.file.size)}
+            {formatBytes(file.size)}
           </p>
+          <Progress className='mt-1 h-1' value={file.progress} />
         </div>
       </div>
 

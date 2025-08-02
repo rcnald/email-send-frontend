@@ -99,6 +99,8 @@ export const validateFilesToUpload = (
 
     validatedFiles.push({
       file,
+      name: file.name,
+      size: file.size,
       id: generateUniqueId(file),
       status: "pending",
       progress: 0,
