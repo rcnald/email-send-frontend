@@ -7,10 +7,15 @@ import {
   StepperTitle,
   StepperTrigger,
 } from "@/components/ui/stepper"
+import { useFileStore } from "@/store/file-store"
 
 export function FileStepper() {
+  const hasFilesToProceed = useFileStore(
+    (state) => state.uploadedFiles.length > 0
+  )
+
   return (
-    <div className='mx-auto w-full max-w-xl space-y-8 text-center'>
+    <div className='mx-auto w-full space-y-8 text-center'>
       <Stepper defaultValue={1}>
         <StepperItem className='not-last:flex-1' step={1}>
           <StepperTrigger>
@@ -22,7 +27,11 @@ export function FileStepper() {
           <StepperSeparator />
         </StepperItem>
 
-        <StepperItem className='not-last:flex-1' step={2}>
+        <StepperItem
+          className='not-last:flex-1'
+          disabled={!hasFilesToProceed}
+          step={2}
+        >
           <StepperTrigger>
             <StepperIndicator asChild>
               <User aria-hidden='true' size={14} />
