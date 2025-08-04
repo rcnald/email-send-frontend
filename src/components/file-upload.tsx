@@ -1,5 +1,6 @@
 import { AlertCircleIcon, FileUpIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { env } from "@/env"
 import { type FileItem, useFileUpload } from "@/hooks/use-file-upload"
 import { formatBytes } from "@/hooks/use-file-upload.utils"
 import { uploader } from "@/services/uploader"
@@ -7,9 +8,9 @@ import { FileArchiveIcon } from "./icons/file-archive"
 import { Progress } from "./ui/progress"
 
 export const FileUpload = () => {
-  const maxFiles = 5
-  const maxSize = 100 * 1024 * 1024 // 100MB
-  const accept = ".zip"
+  const maxFiles = env.VITE_MAX_FILE_COUNT
+  const maxSize = env.VITE_MAX_FILE_SIZE
+  const accept = env.VITE_ALLOWED_EXTENSIONS
 
   const [
     { files, isDragging, errors },
