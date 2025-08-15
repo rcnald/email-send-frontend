@@ -7,6 +7,7 @@ import {
   useReducer,
   useRef,
 } from "react"
+import { deleteAttachment } from "@/api/delete-attachment"
 import type { Uploader } from "@/services/uploader"
 import { useFileStore } from "@/store/file-store"
 import { validateFilesToUpload } from "./use-file-upload.utils"
@@ -287,7 +288,7 @@ export const useFileUpload = (
   )
 
   const removeFile = useCallback(
-    (id: string) => {
+    async (id: string) => {
       const isLocalFile = localState.localFiles.some((file) => file.id === id)
 
       if (isLocalFile) {
@@ -296,8 +297,18 @@ export const useFileUpload = (
       }
 
       actions.removeUploadedFile(id)
+
+      const uploadedFileToRemove = uploadedFiles.find((file) => file.id === id)
+
+      if (!uploadedFileToRemove?.attachmentId) {
+        return
+      }
+
+      await deleteAttachment({
+        attachmentId: uploadedFileToRemove?.attachmentId,
+      })
     },
-    [actions.removeUploadedFile, localState.localFiles]
+    [actions.removeUploadedFile, localState.localFiles, uploadedFiles]
   )
 
   const clearErrors = useCallback(() => {

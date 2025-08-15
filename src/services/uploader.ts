@@ -1,5 +1,5 @@
+import { uploadAttachment } from "@/api/upload-attachment"
 import type { FileItem } from "@/hooks/use-file-upload"
-import { api } from "@/lib/axios"
 
 export type Uploader = (params: {
   file: FileItem
@@ -20,25 +20,12 @@ export const uploader = async ({
   onProgress: (progress: number) => void
 }) => {
   try {
-    const formData = new FormData()
-    formData.append("attachmentFile", file.file)
-
-    const { data } = await api.post("/attachments", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-      onUploadProgress: (progressEvent) => {
-        if (progressEvent.total) {
-          const progress = Math.round(
-            (progressEvent.loaded / progressEvent.total) * 100
-          )
-          onProgress(progress)
-        }
-      },
+    const { attachment_id } = await uploadAttachment({
+      file: file.file,
+      onProgress,
     })
 
-    const attachmentId: string = data?.attachmentId
-    onSuccess(attachmentId)
+    onSuccess(attachment_id)
   } catch (error) {
     onError(error as Error)
   }
