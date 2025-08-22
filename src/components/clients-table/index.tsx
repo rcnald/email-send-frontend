@@ -2,32 +2,24 @@ import {
   type ColumnDef,
   type ColumnFiltersState,
   type FilterFn,
-  flexRender,
   getCoreRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   type PaginationState,
-  type Row,
   type SortingState,
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table"
 import {
-  ChevronFirstIcon,
-  ChevronLastIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   CircleAlertIcon,
-  CircleXIcon,
   EllipsisIcon,
   FilterIcon,
-  ListFilterIcon,
   PlusIcon,
   TrashIcon,
 } from "lucide-react"
-import { useEffect, useId, useMemo, useRef, useState } from "react"
+import { useEffect, useId, useMemo, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -44,26 +36,13 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-} from "@/components/ui/pagination"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import { Table } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import {
   AlertDialog,
@@ -76,6 +55,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog"
+import { ClientsTableBody } from "./clients-table-body"
+import { ClientsTableFilters } from "./clients-table-filters"
 import { ClientsTableHeader } from "./clients-table-header"
 
 type Item = {
@@ -88,11 +69,12 @@ type Item = {
   balance: number
 }
 
-// Custom filter function for multi-column searching
-const multiColumnFilterFn: FilterFn<Item> = (row, columnId, filterValue) => {
+const multiColumnFilterFn: FilterFn<Item> = (row, _, filterValue) => {
   const searchableRowContent =
     `${row.original.name} ${row.original.email}`.toLowerCase()
+
   const searchTerm = (filterValue ?? "").toLowerCase()
+
   return searchableRowContent.includes(searchTerm)
 }
 
@@ -185,7 +167,7 @@ const columns: ColumnDef<Item>[] = [
   {
     id: "actions",
     header: () => <span className='sr-only'>Actions</span>,
-    cell: ({ row }) => <RowActions row={row} />,
+    cell: () => <RowActions />,
     size: 60,
     enableHiding: false,
   },
@@ -199,7 +181,6 @@ export default function Component() {
     pageIndex: 0,
     pageSize: 10,
   })
-  const inputRef = useRef<HTMLInputElement>(null)
 
   const [sorting, setSorting] = useState<SortingState>([
     {
@@ -297,46 +278,13 @@ export default function Component() {
 
   return (
     <div className='space-y-4'>
-      {/* Filters */}
       <div className='flex flex-wrap items-center justify-between gap-3'>
         <div className='flex items-center gap-3'>
-          {/* Filter by name or email */}
           <div className='relative'>
-            <Input
-              aria-label='Filter by name or email'
-              className={cn(
-                "peer min-w-60 ps-9",
-                Boolean(table.getColumn("name")?.getFilterValue()) && "pe-9"
-              )}
-              id={`${id}-input`}
-              onChange={(e) =>
-                table.getColumn("name")?.setFilterValue(e.target.value)
-              }
-              placeholder='Filter by name or email...'
-              ref={inputRef}
-              type='text'
-              value={
-                (table.getColumn("name")?.getFilterValue() ?? "") as string
-              }
+            <ClientsTableFilters
+              filterValue={table.getColumn("name")?.getFilterValue() as string}
+              setFilterValue={table.getColumn("name")?.setFilterValue}
             />
-            <div className='pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50'>
-              <ListFilterIcon aria-hidden='true' size={16} />
-            </div>
-            {Boolean(table.getColumn("name")?.getFilterValue()) && (
-              <button
-                aria-label='Clear filter'
-                className='absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-md text-muted-foreground/80 outline-none transition-[color,box-shadow] hover:text-foreground focus:z-10 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50'
-                onClick={() => {
-                  table.getColumn("name")?.setFilterValue("")
-                  if (inputRef.current) {
-                    inputRef.current.focus()
-                  }
-                }}
-                type='button'
-              >
-                <CircleXIcon aria-hidden='true' size={16} />
-              </button>
-            )}
           </div>
           {/* Filter by status */}
           <Popover>
@@ -434,7 +382,6 @@ export default function Component() {
               </AlertDialogContent>
             </AlertDialog>
           )}
-          {/* Add user button */}
           <Button className='ml-auto' variant='outline'>
             <PlusIcon
               aria-hidden='true'
@@ -446,170 +393,20 @@ export default function Component() {
         </div>
       </div>
 
-      {/* Table */}
       <div className='overflow-hidden rounded-md border bg-background'>
-        <Table className='table-fixed'>
+        <Table className='table-auto'>
           <ClientsTableHeader tableHeaderGroups={table.getHeaderGroups()} />
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  data-state={row.getIsSelected() && "selected"}
-                  key={row.id}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell className='last:py-0' key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  className='h-24 text-center'
-                  colSpan={columns.length}
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+          <ClientsTableBody
+            columnsQuantity={table.getVisibleLeafColumns().length}
+            tableRowModel={table.getRowModel()}
+          />
         </Table>
       </div>
-
-      {/* Pagination */}
-      <div className='flex items-center justify-between gap-8'>
-        {/* Results per page */}
-        <div className='flex items-center gap-3'>
-          <Label className='max-sm:sr-only' htmlFor={id}>
-            Rows per page
-          </Label>
-          <Select
-            onValueChange={(value) => {
-              table.setPageSize(Number(value))
-            }}
-            value={table.getState().pagination.pageSize.toString()}
-          >
-            <SelectTrigger className='w-fit whitespace-nowrap' id={id}>
-              <SelectValue placeholder='Select number of results' />
-            </SelectTrigger>
-            <SelectContent className='[&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2 [&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8'>
-              {[5, 10, 25, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={pageSize.toString()}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        {/* Page number information */}
-        <div className='flex grow justify-end whitespace-nowrap text-muted-foreground text-sm'>
-          <p
-            aria-live='polite'
-            className='whitespace-nowrap text-muted-foreground text-sm'
-          >
-            <span className='text-foreground'>
-              {table.getState().pagination.pageIndex *
-                table.getState().pagination.pageSize +
-                1}
-              -
-              {Math.min(
-                Math.max(
-                  table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    table.getState().pagination.pageSize,
-                  0
-                ),
-                table.getRowCount()
-              )}
-            </span>{" "}
-            of{" "}
-            <span className='text-foreground'>
-              {table.getRowCount().toString()}
-            </span>
-          </p>
-        </div>
-
-        {/* Pagination buttons */}
-        <div>
-          <Pagination>
-            <PaginationContent>
-              {/* First page button */}
-              <PaginationItem>
-                <Button
-                  aria-label='Go to first page'
-                  className='disabled:pointer-events-none disabled:opacity-50'
-                  disabled={!table.getCanPreviousPage()}
-                  onClick={() => table.firstPage()}
-                  size='icon'
-                  variant='outline'
-                >
-                  <ChevronFirstIcon aria-hidden='true' size={16} />
-                </Button>
-              </PaginationItem>
-              {/* Previous page button */}
-              <PaginationItem>
-                <Button
-                  aria-label='Go to previous page'
-                  className='disabled:pointer-events-none disabled:opacity-50'
-                  disabled={!table.getCanPreviousPage()}
-                  onClick={() => table.previousPage()}
-                  size='icon'
-                  variant='outline'
-                >
-                  <ChevronLeftIcon aria-hidden='true' size={16} />
-                </Button>
-              </PaginationItem>
-              {/* Next page button */}
-              <PaginationItem>
-                <Button
-                  aria-label='Go to next page'
-                  className='disabled:pointer-events-none disabled:opacity-50'
-                  disabled={!table.getCanNextPage()}
-                  onClick={() => table.nextPage()}
-                  size='icon'
-                  variant='outline'
-                >
-                  <ChevronRightIcon aria-hidden='true' size={16} />
-                </Button>
-              </PaginationItem>
-              {/* Last page button */}
-              <PaginationItem>
-                <Button
-                  aria-label='Go to last page'
-                  className='disabled:pointer-events-none disabled:opacity-50'
-                  disabled={!table.getCanNextPage()}
-                  onClick={() => table.lastPage()}
-                  size='icon'
-                  variant='outline'
-                >
-                  <ChevronLastIcon aria-hidden='true' size={16} />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      </div>
-      <p className='mt-4 text-center text-muted-foreground text-sm'>
-        Example of a more complex table made with{" "}
-        <a
-          className='underline hover:text-foreground'
-          href='https://tanstack.com/table'
-          rel='noopener noreferrer'
-          target='_blank'
-        >
-          TanStack Table
-        </a>
-      </p>
     </div>
   )
 }
 
-function RowActions({ row }: { row: Row<Item> }) {
+function RowActions() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
