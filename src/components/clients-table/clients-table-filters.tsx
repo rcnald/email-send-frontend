@@ -18,7 +18,7 @@ export const ClientsTableFilters = ({
   const hasFilterValue = Boolean(filterValue)
 
   return (
-    <div className='clients-table-filters'>
+    <>
       <Input
         aria-label='Filter by name or email'
         className={cn("peer min-w-60 ps-9", hasFilterValue && "pe-9")}
@@ -50,6 +50,6 @@ export const ClientsTableFilters = ({
           <CircleXIcon aria-hidden='true' size={16} />
         </button>
       ) : null}
-    </div>
+    </>
   )
 }
