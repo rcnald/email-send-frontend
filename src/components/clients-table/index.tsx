@@ -107,7 +107,7 @@ const columns: ColumnDef<Item>[] = [
   },
 ]
 
-export default function Component() {
+export function ClientsTable() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([
     {
