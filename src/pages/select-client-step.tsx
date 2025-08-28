@@ -1,6 +1,8 @@
+import { ArrowRightIcon } from "lucide-react"
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { ClientsTable } from "@/components/clients-table"
+import { Button } from "@/components/ui/button"
 import { useFileStore } from "@/store/file-store"
 
 export const SelectClientStep = () => {
@@ -15,5 +17,22 @@ export const SelectClientStep = () => {
     }
   }, [hasFilesToProceed, navigate])
 
-  return <ClientsTable />
+  return (
+    <div className='grid grid-cols-1 gap-5 self-start'>
+      <ClientsTable />
+      <div className='flex w-full flex-col gap-3 place-self-end md:flex-row lg:w-fit'>
+        <Button className='w-full lg:w-fit' variant={"secondary"}>
+          Voltar
+        </Button>
+        <Button className='group w-full lg:w-fit'>
+          Continuar
+          <ArrowRightIcon
+            aria-hidden='true'
+            className='-me-1 opacity-60 transition-transform group-hover:translate-x-0.5'
+            size={16}
+          />
+        </Button>
+      </div>
+    </div>
+  )
 }

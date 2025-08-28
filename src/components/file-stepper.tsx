@@ -1,4 +1,5 @@
 import { Send, Upload, User } from "lucide-react"
+import type { ComponentProps } from "react"
 import { Link, useLocation } from "react-router-dom"
 import {
   Stepper,
@@ -8,9 +9,10 @@ import {
   StepperTitle,
   StepperTrigger,
 } from "@/components/ui/stepper"
+import { cn } from "@/lib/utils"
 import { useFileStore } from "@/store/file-store"
 
-export function FileStepper() {
+export function FileStepper({ className, ...props }: ComponentProps<"div">) {
   const { pathname } = useLocation()
 
   const hasFilesToProceed = useFileStore(
@@ -18,7 +20,10 @@ export function FileStepper() {
   )
 
   return (
-    <div className='mx-auto w-full space-y-8 text-center'>
+    <div
+      className={cn("mx-auto w-full space-y-8 text-center", className)}
+      {...props}
+    >
       <Stepper defaultValue={1}>
         <StepperItem className='not-last:flex-1' step={1}>
           <StepperTrigger setAsActiveStep={pathname === "/upload"}>

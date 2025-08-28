@@ -48,7 +48,9 @@ export const ClientsTableDeleteButton = ({
         </div>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onDelete}>Excluir</AlertDialogAction>
+          <Button asChild variant={"destructive"}>
+            <AlertDialogAction onClick={onDelete}>Excluir</AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
