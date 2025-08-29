@@ -11,6 +11,10 @@ export const SelectClientStep = () => {
     (state) => state.uploadedFiles.length > 0
   )
 
+  const handleGoBack = () => {
+    navigate(-1)
+  }
+
   useEffect(() => {
     if (!hasFilesToProceed) {
       navigate("/upload", { replace: true })
@@ -21,7 +25,11 @@ export const SelectClientStep = () => {
     <div className='grid grid-cols-1 gap-5 self-start'>
       <ClientsTable />
       <div className='flex w-full flex-col gap-3 place-self-end md:flex-row lg:w-fit'>
-        <Button className='w-full lg:w-fit' variant={"secondary"}>
+        <Button
+          className='w-full lg:w-fit'
+          onClick={handleGoBack}
+          variant={"secondary"}
+        >
           Voltar
         </Button>
         <Button className='group w-full lg:w-fit'>
