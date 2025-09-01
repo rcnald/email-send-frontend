@@ -3,10 +3,12 @@ import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { ClientsTable } from "@/components/clients-table"
 import { Button } from "@/components/ui/button"
+import { useClientStore } from "@/store/client-store"
 import { useFileStore } from "@/store/file-store"
 
 export const SelectClientStep = () => {
   const navigate = useNavigate()
+  const hasSelectedClient = useClientStore((state) => Boolean(state.client))
   const hasFilesToProceed = useFileStore(
     (state) => state.uploadedFiles.length > 0
   )
@@ -32,7 +34,7 @@ export const SelectClientStep = () => {
         >
           Voltar
         </Button>
-        <Button className='group w-full lg:w-fit'>
+        <Button className='group w-full lg:w-fit' disabled={!hasSelectedClient}>
           Continuar
           <ArrowRightIcon
             aria-hidden='true'

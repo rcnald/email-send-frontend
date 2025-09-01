@@ -8,6 +8,8 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type OnChangeFn,
+  type RowSelectionState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table"
@@ -19,6 +21,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table } from "@/components/ui/table"
 import { cn, maskCNPJ } from "@/lib/utils"
+import { useClientStore } from "@/store/client-store"
 import { ClientsTableBody } from "./clients-table-body"
 import { ClientsTableDeleteButton } from "./clients-table-delete-button"
 import { ClientsTableFilters } from "./clients-table-filters"
@@ -108,7 +111,13 @@ const columns: ColumnDef<Item>[] = [
 ]
 
 export function ClientsTable() {
+  const { addClient, clearClient } = useClientStore((state) => state.actions)
+  const client = useClientStore((state) => state.client)
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>(() =>
+    client ? { [client.id]: true } : {}
+  )
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "name",
@@ -120,6 +129,23 @@ export function ClientsTable() {
     queryKey: ["clients"],
     queryFn: fetchClients,
   })
+
+  const handleRowSelection: OnChangeFn<RowSelectionState> = (
+    updaterOrValue
+  ) => {
+    setRowSelection(updaterOrValue)
+
+    const rowSelectionValue =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(rowSelection)
+        : updaterOrValue
+
+    clearClient()
+
+    Object.keys(rowSelectionValue).forEach((key) => {
+      addClient({ id: key })
+    })
+  }
 
   const table = useReactTable({
     data: clientsData?.clients ?? [],
@@ -133,9 +159,12 @@ export function ClientsTable() {
     getFilteredRowModel: getFilteredRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     enableMultiRowSelection: false,
+    getRowId: (row) => row.id,
+    onRowSelectionChange: handleRowSelection,
     state: {
       sorting,
       columnFilters,
+      rowSelection,
     },
   })
 
