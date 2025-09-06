@@ -143,7 +143,18 @@ export function ClientsTable() {
     clearClient()
 
     Object.keys(rowSelectionValue).forEach((key) => {
-      addClient({ id: key })
+      const selectedClient = clientsData?.clients.find(
+        (clientData) => clientData.id === key
+      )
+
+      addClient({
+        id: key,
+        name: selectedClient?.name ?? "",
+        accountant: {
+          name: selectedClient?.accountant.name ?? "",
+          email: selectedClient?.accountant.email ?? "",
+        },
+      })
     })
   }
 
