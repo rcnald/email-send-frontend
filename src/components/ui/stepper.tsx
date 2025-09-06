@@ -1,8 +1,14 @@
 import { CheckIcon, ChevronRight, LoaderCircleIcon } from "lucide-react"
 import { Slot } from "radix-ui"
 import type React from "react"
-import { createContext, useCallback, useContext, useState } from "react"
-
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import { cn } from "@/lib/utils"
 
 type StepperContextValue = {
@@ -98,6 +104,7 @@ interface StepperItemProps extends React.HTMLAttributes<HTMLDivElement> {
   completed?: boolean
   disabled?: boolean
   loading?: boolean
+  setAsActiveStep?: boolean
 }
 
 function StepperItem({
@@ -105,6 +112,7 @@ function StepperItem({
   completed = false,
   disabled = false,
   loading = false,
+  setAsActiveStep = false,
   className,
   children,
   ...props
@@ -116,7 +124,6 @@ function StepperItem({
   const isCompleted = completed || step < activeStep
   const isActive = step === activeStep
   const isLoading = loading && step === activeStep
-  // const isDisabled = disabled || (step > activeStep && !isLoading)
 
   if (isCompleted) {
     state = "completed"
@@ -149,16 +156,35 @@ function StepperItem({
 interface StepperTriggerProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean
+  setAsActiveStep?: boolean
 }
 
 function StepperTrigger({
   asChild = false,
+  setAsActiveStep,
   className,
   children,
   ...props
 }: StepperTriggerProps) {
   const { setActiveStep } = useStepper()
   const { step, isDisabled } = useStepItem()
+
+  const isClickNavigation = useRef(false)
+
+  useEffect(() => {
+    if (setAsActiveStep && !isClickNavigation.current) {
+      setActiveStep(step)
+    }
+
+    isClickNavigation.current = false
+  }, [setAsActiveStep, step, setActiveStep])
+
+  const handleClick = () => {
+    if (!isDisabled) {
+      isClickNavigation.current = true
+      setActiveStep(step)
+    }
+  }
 
   if (asChild) {
     return (
@@ -176,7 +202,7 @@ function StepperTrigger({
       )}
       data-slot='stepper-trigger'
       disabled={isDisabled}
-      onClick={() => setActiveStep(step)}
+      onClick={handleClick}
       {...props}
     >
       {children}

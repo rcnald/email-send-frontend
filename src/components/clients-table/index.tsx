@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -7,16 +8,20 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  type OnChangeFn,
+  type RowSelectionState,
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table"
 import { PlusIcon } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { fetchClients } from "@/api/fetch-clients"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table } from "@/components/ui/table"
-import { cn } from "@/lib/utils"
+import { cn, maskCNPJ } from "@/lib/utils"
+import { useClientStore } from "@/store/client-store"
 import { ClientsTableBody } from "./clients-table-body"
 import { ClientsTableDeleteButton } from "./clients-table-delete-button"
 import { ClientsTableFilters } from "./clients-table-filters"
@@ -25,32 +30,25 @@ import { ClientsTableHeader } from "./clients-table-header"
 type Item = {
   id: string
   name: string
-  email: string
-  location: string
-  flag: string
-  status: "Active" | "Inactive" | "Pending"
-  balance: number
+  CNPJ: string
+  accountant: {
+    name: string
+    email: string
+  }
+  status: "sent" | "not_send"
+}
+
+const STATUS_OPTIONS = {
+  sent: "Enviado",
+  not_sent: "Não Enviado",
 }
 
 const multiColumnFilterFn: FilterFn<Item> = (row, _, filterValue) => {
-  const searchableRowContent =
-    `${row.original.name} ${row.original.email}`.toLowerCase()
+  const searchableRowContent = row.original.name.toLowerCase()
 
   const searchTerm = (filterValue ?? "").toLowerCase()
 
   return searchableRowContent.includes(searchTerm)
-}
-
-const statusFilterFn: FilterFn<Item> = (
-  row,
-  columnId,
-  filterValue: string[]
-) => {
-  if (!filterValue?.length) return true
-
-  const status = row.getValue(columnId) as string
-
-  return filterValue.includes(status)
 }
 
 const columns: ColumnDef<Item>[] = [
@@ -69,7 +67,7 @@ const columns: ColumnDef<Item>[] = [
     enableHiding: false,
   },
   {
-    header: "Name",
+    header: "Nome",
     accessorKey: "name",
     cell: ({ row }) => (
       <div className='font-medium'>{row.getValue("name")}</div>
@@ -79,20 +77,10 @@ const columns: ColumnDef<Item>[] = [
     enableHiding: false,
   },
   {
-    header: "Email",
-    accessorKey: "email",
+    header: "CNPJ",
+    accessorKey: "CNPJ",
+    cell: ({ row }) => maskCNPJ(row.getValue("CNPJ")),
     size: 220,
-  },
-  {
-    header: "Location",
-    accessorKey: "location",
-    cell: ({ row }) => (
-      <div>
-        <span className='text-lg leading-none'>{row.original.flag}</span>{" "}
-        {row.getValue("location")}
-      </div>
-    ),
-    size: 180,
   },
   {
     header: "Status",
@@ -100,37 +88,36 @@ const columns: ColumnDef<Item>[] = [
     cell: ({ row }) => (
       <Badge
         className={cn(
-          row.getValue("status") === "Inactive" &&
+          row.getValue("status") === "not_sent" &&
             "bg-muted-foreground/60 text-primary-foreground"
         )}
       >
-        {row.getValue("status")}
+        {STATUS_OPTIONS[row.getValue("status") as keyof typeof STATUS_OPTIONS]}
       </Badge>
     ),
     size: 100,
-    filterFn: statusFilterFn,
   },
   {
-    header: "Performance",
-    accessorKey: "performance",
+    header: "Contador",
+    accessorKey: "accountant.name",
+    cell: ({ row }) => <div>{row.original.accountant.name}</div>,
   },
   {
-    header: "Balance",
-    accessorKey: "balance",
-    cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue("balance"))
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount)
-      return formatted
-    },
-    size: 120,
+    header: "Email",
+    accessorKey: "email",
+    cell: ({ row }) => <div>{row.original.accountant.email}</div>,
+    size: 180,
   },
 ]
 
-export default function Component() {
+export function ClientsTable() {
+  const { addClient, clearClient } = useClientStore((state) => state.actions)
+  const client = useClientStore((state) => state.client)
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>(() =>
+    client ? { [client.id]: true } : {}
+  )
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "name",
@@ -138,23 +125,41 @@ export default function Component() {
     },
   ])
 
-  const [data, setData] = useState<Item[]>([])
+  const { data: clientsData } = useQuery({
+    queryKey: ["clients"],
+    queryFn: fetchClients,
+  })
 
-  useEffect(() => {
-    async function fetchClients() {
-      const clientsResponse = await fetch(
-        "https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/users-01_fertyx.json"
+  const handleRowSelection: OnChangeFn<RowSelectionState> = (
+    updaterOrValue
+  ) => {
+    setRowSelection(updaterOrValue)
+
+    const rowSelectionValue =
+      typeof updaterOrValue === "function"
+        ? updaterOrValue(rowSelection)
+        : updaterOrValue
+
+    clearClient()
+
+    Object.keys(rowSelectionValue).forEach((key) => {
+      const selectedClient = clientsData?.clients.find(
+        (clientData) => clientData.id === key
       )
-      const clientsData = await clientsResponse.json()
 
-      setData(clientsData)
-    }
-
-    fetchClients()
-  }, [])
+      addClient({
+        id: key,
+        name: selectedClient?.name ?? "",
+        accountant: {
+          name: selectedClient?.accountant.name ?? "",
+          email: selectedClient?.accountant.email ?? "",
+        },
+      })
+    })
+  }
 
   const table = useReactTable({
-    data,
+    data: clientsData?.clients ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -165,22 +170,16 @@ export default function Component() {
     getFilteredRowModel: getFilteredRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     enableMultiRowSelection: false,
+    getRowId: (row) => row.id,
+    onRowSelectionChange: handleRowSelection,
     state: {
       sorting,
       columnFilters,
+      rowSelection,
     },
   })
 
   const isRowSelected = table.getSelectedRowModel().rows.length > 0
-
-  const handleDeleteRows = () => {
-    const selectedRows = table.getSelectedRowModel().rows
-    const updatedData = data.filter(
-      (item) => !selectedRows.some((row) => row.original.id === item.id)
-    )
-    setData(updatedData)
-    table.resetRowSelection()
-  }
 
   return (
     <div className='space-y-4'>
@@ -195,7 +194,7 @@ export default function Component() {
         </div>
         <div className='flex items-center gap-3'>
           {isRowSelected ? (
-            <ClientsTableDeleteButton onDelete={handleDeleteRows} />
+            <ClientsTableDeleteButton onDelete={() => null} />
           ) : null}
 
           <Button className='ml-auto' variant='outline'>
@@ -204,7 +203,7 @@ export default function Component() {
               className='-ms-1 opacity-60'
               size={16}
             />
-            Add user
+            Adicionar cliente
           </Button>
         </div>
       </div>

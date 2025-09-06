@@ -28,7 +28,7 @@ export const ClientsTableDeleteButton = ({
             className='-ms-1 opacity-60'
             size={16}
           />
-          Delete
+          Excluir
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -40,15 +40,17 @@ export const ClientsTableDeleteButton = ({
             <CircleAlertIcon className='opacity-80' size={16} />
           </div>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete{" "}
+              Esta ação não pode ser desfeita. Isso irá excluir permanentemente{" "}
             </AlertDialogDescription>
           </AlertDialogHeader>
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <Button asChild variant={"destructive"}>
+            <AlertDialogAction onClick={onDelete}>Excluir</AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

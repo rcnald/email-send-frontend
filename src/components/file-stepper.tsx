@@ -1,4 +1,6 @@
 import { Send, Upload, User } from "lucide-react"
+import type { ComponentProps } from "react"
+import { Link, useLocation } from "react-router-dom"
 import {
   Stepper,
   StepperIndicator,
@@ -7,22 +9,30 @@ import {
   StepperTitle,
   StepperTrigger,
 } from "@/components/ui/stepper"
+import { cn } from "@/lib/utils"
 import { useFileStore } from "@/store/file-store"
 
-export function FileStepper() {
+export function FileStepper({ className, ...props }: ComponentProps<"div">) {
+  const { pathname } = useLocation()
+
   const hasFilesToProceed = useFileStore(
     (state) => state.uploadedFiles.length > 0
   )
 
   return (
-    <div className='mx-auto w-full space-y-8 text-center'>
+    <div
+      className={cn("mx-auto w-full space-y-8 text-center", className)}
+      {...props}
+    >
       <Stepper defaultValue={1}>
         <StepperItem className='not-last:flex-1' step={1}>
-          <StepperTrigger>
-            <StepperIndicator asChild>
-              <Upload aria-hidden='true' size={14} />
-            </StepperIndicator>
-            <StepperTitle>Anexar</StepperTitle>
+          <StepperTrigger setAsActiveStep={pathname === "/upload"}>
+            <Link className='flex items-center gap-3' to={"/upload"}>
+              <StepperIndicator asChild>
+                <Upload aria-hidden='true' size={14} />
+              </StepperIndicator>
+              <StepperTitle>Anexar</StepperTitle>
+            </Link>
           </StepperTrigger>
           <StepperSeparator />
         </StepperItem>
@@ -32,21 +42,25 @@ export function FileStepper() {
           disabled={!hasFilesToProceed}
           step={2}
         >
-          <StepperTrigger>
-            <StepperIndicator asChild>
-              <User aria-hidden='true' size={14} />
-            </StepperIndicator>
-            <StepperTitle>Cliente</StepperTitle>
+          <StepperTrigger setAsActiveStep={pathname === "/select-client"}>
+            <Link className='flex items-center gap-3' to={"/select-client"}>
+              <StepperIndicator asChild>
+                <User aria-hidden='true' size={14} />
+              </StepperIndicator>
+              <StepperTitle>Cliente</StepperTitle>
+            </Link>
           </StepperTrigger>
           <StepperSeparator />
         </StepperItem>
 
         <StepperItem className='not-last:flex-1' disabled={true} step={3}>
           <StepperTrigger>
-            <StepperIndicator asChild>
-              <Send aria-hidden='true' size={14} />
-            </StepperIndicator>
-            <StepperTitle>Enviar</StepperTitle>
+            <Link className='flex items-center gap-3' to={"/send"}>
+              <StepperIndicator asChild>
+                <Send aria-hidden='true' size={14} />
+              </StepperIndicator>
+              <StepperTitle>Enviar</StepperTitle>
+            </Link>
           </StepperTrigger>
         </StepperItem>
       </Stepper>
