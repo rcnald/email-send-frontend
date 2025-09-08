@@ -17,6 +17,12 @@ export const SelectClientStep = () => {
     navigate(-1)
   }
 
+  const handleNextStep = () => {
+    if (hasFilesToProceed) {
+      navigate("/resume")
+    }
+  }
+
   useEffect(() => {
     if (!hasFilesToProceed) {
       navigate("/upload", { replace: true })
@@ -34,7 +40,11 @@ export const SelectClientStep = () => {
         >
           Voltar
         </Button>
-        <Button className='group w-full lg:w-fit' disabled={!hasSelectedClient}>
+        <Button
+          className='group w-full lg:w-fit'
+          disabled={!hasSelectedClient}
+          onClick={handleNextStep}
+        >
           Continuar
           <ArrowRightIcon
             aria-hidden='true'

@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
 
 type StepperContextValue = {
@@ -22,6 +23,7 @@ type StepItemContextValue = {
   state: StepState
   isDisabled: boolean
   isLoading: boolean
+  pathname?: string
 }
 
 type StepState = "active" | "completed" | "inactive" | "loading"
@@ -105,6 +107,7 @@ interface StepperItemProps extends React.HTMLAttributes<HTMLDivElement> {
   disabled?: boolean
   loading?: boolean
   setAsActiveStep?: boolean
+  pathname?: string
 }
 
 function StepperItem({
@@ -112,11 +115,12 @@ function StepperItem({
   completed = false,
   disabled = false,
   loading = false,
-  setAsActiveStep = false,
   className,
+  pathname,
   children,
   ...props
 }: StepperItemProps) {
+  const navigate = useNavigate()
   const { activeStep } = useStepper()
 
   let state: StepState = "inactive"
@@ -133,9 +137,15 @@ function StepperItem({
     state = "active"
   }
 
+  useEffect(() => {
+    if (isActive && pathname) {
+      navigate(pathname, { replace: true })
+    }
+  }, [isActive, navigate, pathname])
+
   return (
     <StepItemContext.Provider
-      value={{ step, state, isDisabled: disabled, isLoading }}
+      value={{ step, state, isDisabled: disabled, isLoading, pathname }}
     >
       <div
         className={cn(
@@ -161,23 +171,25 @@ interface StepperTriggerProps
 
 function StepperTrigger({
   asChild = false,
-  setAsActiveStep,
   className,
   children,
   ...props
 }: StepperTriggerProps) {
+  const { pathname: pagePathname } = useLocation()
   const { setActiveStep } = useStepper()
-  const { step, isDisabled } = useStepItem()
+  const { step, isDisabled, pathname } = useStepItem()
+
+  const isCurrentPathname = pagePathname === pathname
 
   const isClickNavigation = useRef(false)
 
   useEffect(() => {
-    if (setAsActiveStep && !isClickNavigation.current) {
+    if (isCurrentPathname && !isClickNavigation.current) {
       setActiveStep(step)
     }
 
     isClickNavigation.current = false
-  }, [setAsActiveStep, step, setActiveStep])
+  }, [step, setActiveStep, isCurrentPathname])
 
   const handleClick = () => {
     if (!isDisabled) {
