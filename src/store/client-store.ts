@@ -4,6 +4,7 @@ import { createJSONStorage, persist } from "zustand/middleware"
 export type Client = {
   id: string
   name: string
+  CNPJ: string
   accountant: {
     name: string
     email: string
