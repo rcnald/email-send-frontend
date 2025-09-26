@@ -36,7 +36,7 @@ export const ResumeStep = () => {
   }, [hasFilesToProceed, hasSelectedClient, navigate])
 
   return (
-    <div className='w-[400px] self-start'>
+    <div className='w-[500px] self-start'>
       <Card>
         <CardHeader>
           <CardHeading>
@@ -48,7 +48,7 @@ export const ResumeStep = () => {
             </Button>
           </CardToolbar>
         </CardHeader>
-        <CardContent className='py-1'>
+        <CardContent className='grid grid-cols-2 py-1'>
           <div className='flex items-center justify-between gap-2 border-b border-dashed py-2 last:border-none'>
             <div className='flex flex-col gap-3'>
               <h1 className='text-start font-semibold text-muted-foreground text-normal tracking-tight'>
