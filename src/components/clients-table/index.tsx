@@ -150,6 +150,7 @@ export function ClientsTable() {
       addClient({
         id: key,
         name: selectedClient?.name ?? "",
+        CNPJ: selectedClient?.CNPJ ?? "",
         accountant: {
           name: selectedClient?.accountant.name ?? "",
           email: selectedClient?.accountant.email ?? "",
