@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { fromZodError } from "zod-validation-error"
 
 const envSchema = z.object({
   VITE_ENVIRONMENT: z
@@ -21,4 +22,14 @@ const envSchema = z.object({
   VITE_ALLOWED_EXTENSIONS: z.string().default(".zip"),
 })
 
-export const env = envSchema.parse(import.meta.env)
+const _env = envSchema.safeParse(import.meta.env)
+
+if (!_env.success) {
+  console.error("Invalid environment variables:", fromZodError(_env.error))
+
+  throw new Error("Invalid environment variables", {
+    cause: fromZodError(_env.error),
+  })
+}
+
+export const env = _env.data
