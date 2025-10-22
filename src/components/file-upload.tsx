@@ -1,12 +1,28 @@
 import { AlertCircleIcon, FileUpIcon, XIcon } from "lucide-react"
 import { AiOutlineLoading3Quarters } from "react-icons/ai"
+import { IoCloseCircleSharp } from "react-icons/io5"
 import { TbZip } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { env } from "@/env"
 import { type FileItem, useFileUpload } from "@/hooks/use-file-upload"
 import { formatBytes } from "@/hooks/use-file-upload.utils"
 import { uploader } from "@/services/uploader"
+import { Badge } from "./ui/badge"
 import { Progress } from "./ui/progress"
+
+const STATUS = (process: number) => {
+  return {
+    uploading: `${process}%`,
+    pending: <AiOutlineLoading3Quarters className='animate-spin' />,
+    completed: <Badge>Enviado</Badge>,
+    error: (
+      <Badge variant='destructive'>
+        <IoCloseCircleSharp />
+        Falhou
+      </Badge>
+    ),
+  }
+}
 
 export const FileUpload = () => {
   const maxFiles = env.VITE_MAX_FILE_COUNT
@@ -111,13 +127,8 @@ const FileListItem = ({
     file.size * (file.progress / 100),
     { label: false }
   )
-  const isFileProcessing = file.progress > 0
 
-  const fileProgress = isFileProcessing ? (
-    `${file.progress}%`
-  ) : (
-    <AiOutlineLoading3Quarters className='animate-spin' />
-  )
+  const status = STATUS(file.progress)[file.status]
 
   const handleRemove = () => {
     removeFile(file.id)
@@ -134,7 +145,7 @@ const FileListItem = ({
         <div className='flex w-full flex-col py-1'>
           <p className='flex justify-between truncate font-medium text-[13px]'>
             <span className='font-mono'>{file.name}</span>
-            <span>{fileProgress}</span>
+            <span>{status}</span>
           </p>
           <Progress className='mt-1 h-1' value={file.progress} />
           <p className='text-muted-foreground text-xs'>
