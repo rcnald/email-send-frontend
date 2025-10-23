@@ -1,5 +1,6 @@
 import { AlertCircleIcon, FileUpIcon, XIcon } from "lucide-react"
 import { AiOutlineLoading3Quarters } from "react-icons/ai"
+import { IoMdCheckmarkCircle } from "react-icons/io"
 import { IoCloseCircleSharp } from "react-icons/io5"
 import { TbZip } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
@@ -14,7 +15,12 @@ const STATUS = (process: number) => {
   return {
     uploading: `${process}%`,
     pending: <AiOutlineLoading3Quarters className='animate-spin' />,
-    completed: <Badge>Enviado</Badge>,
+    completed: (
+      <Badge>
+        <IoMdCheckmarkCircle />
+        Enviado
+      </Badge>
+    ),
     error: (
       <Badge variant='destructive'>
         <IoCloseCircleSharp />
