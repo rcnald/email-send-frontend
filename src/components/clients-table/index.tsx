@@ -87,10 +87,9 @@ const columns: ColumnDef<Item>[] = [
     accessorKey: "status",
     cell: ({ row }) => (
       <Badge
-        className={cn(
-          row.getValue("status") === "not_sent" &&
-            "bg-muted-foreground/60 text-primary-foreground"
-        )}
+        variant={
+          row.getValue("status") === "not_sent" ? "destructive" : "default"
+        }
       >
         {STATUS_OPTIONS[row.getValue("status") as keyof typeof STATUS_OPTIONS]}
       </Badge>

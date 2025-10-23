@@ -1,11 +1,34 @@
 import { AlertCircleIcon, FileUpIcon, XIcon } from "lucide-react"
+import { AiOutlineLoading3Quarters } from "react-icons/ai"
+import { IoMdCheckmarkCircle } from "react-icons/io"
+import { IoCloseCircleSharp } from "react-icons/io5"
+import { TbZip } from "react-icons/tb"
 import { Button } from "@/components/ui/button"
 import { env } from "@/env"
 import { type FileItem, useFileUpload } from "@/hooks/use-file-upload"
 import { formatBytes } from "@/hooks/use-file-upload.utils"
 import { uploader } from "@/services/uploader"
-import { FileArchiveIcon } from "./icons/file-archive"
+import { Badge } from "./ui/badge"
 import { Progress } from "./ui/progress"
+
+const STATUS = (process: number) => {
+  return {
+    uploading: `${process}%`,
+    pending: <AiOutlineLoading3Quarters className='animate-spin' />,
+    completed: (
+      <Badge>
+        <IoMdCheckmarkCircle />
+        Enviado
+      </Badge>
+    ),
+    error: (
+      <Badge variant='destructive'>
+        <IoCloseCircleSharp />
+        Falhou
+      </Badge>
+    ),
+  }
+}
 
 export const FileUpload = () => {
   const maxFiles = env.VITE_MAX_FILE_COUNT
@@ -105,24 +128,35 @@ const FileListItem = ({
   file: FileItem
   removeFile: (id: string) => void
 }) => {
+  const fileSize = formatBytes(file.size)
+  const alreadyUploadedFileSize = formatBytes(
+    file.size * (file.progress / 100),
+    { label: false }
+  )
+
+  const status = STATUS(file.progress)[file.status]
+
   const handleRemove = () => {
     removeFile(file.id)
   }
   return (
     <div
-      className='flex items-center justify-between gap-2 rounded-lg border bg-background p-1.5 pe-3'
+      className='flex items-center justify-between gap-2 rounded-lg border bg-background p-2 pe-3'
       key={file.id}
     >
       <div className='flex w-full items-center gap-3 overflow-hidden'>
-        <div className='flex aspect-square size-10 shrink-0 items-center justify-center rounded'>
-          <FileArchiveIcon className='size-5 text-primary opacity-60' />
+        <div className='flex size-12 shrink-0 items-center justify-center rounded-md bg-primary/20'>
+          <TbZip className='size-6 text-primary' />
         </div>
         <div className='flex w-full flex-col py-1'>
-          <p className='truncate font-medium text-[13px]'>{file.name}</p>
-          <p className='text-muted-foreground text-xs'>
-            {formatBytes(file.size)}
+          <p className='flex justify-between truncate font-medium text-[13px]'>
+            <span className='font-mono'>{file.name}</span>
+            <span>{status}</span>
           </p>
           <Progress className='mt-1 h-1' value={file.progress} />
+          <p className='text-muted-foreground text-xs'>
+            {alreadyUploadedFileSize} de {fileSize}
+          </p>
         </div>
       </div>
 

@@ -77,6 +77,10 @@ type FileUploadAction =
       payload: { file: FileItem; progress: number }
     }
   | { type: "UPDATE_DRAGGING"; payload: boolean }
+  | {
+      type: "UPDATE_STATUS"
+      payload: { id: string; status: FileItem["status"] }
+    }
 
 const fileUploadReducer = (
   state: FileUploadLocalState,
@@ -112,9 +116,13 @@ const fileUploadReducer = (
     case "UPDATE_FILE_PROGRESS":
       return {
         ...state,
-        localFiles: state.localFiles.map((file) =>
+        localFiles: state.localFiles.map<FileItem>((file) =>
           file.id === action.payload.file.id
-            ? { ...file, progress: action.payload.progress }
+            ? {
+                ...file,
+                progress: action.payload.progress,
+                status: "uploading",
+              }
             : file
         ),
       }
@@ -122,6 +130,15 @@ const fileUploadReducer = (
       return {
         ...state,
         isDragging: action.payload,
+      }
+    case "UPDATE_STATUS":
+      return {
+        ...state,
+        localFiles: state.localFiles.map((file) =>
+          file.id === action.payload.id
+            ? { ...file, status: action.payload.status }
+            : file
+        ),
       }
     default:
       throw new Error("Ação não esperada")
@@ -194,6 +211,11 @@ export const useFileUpload = (
             if (isFileCancelled(file)) {
               return
             }
+
+            dispatch({
+              type: "UPDATE_STATUS",
+              payload: { id: file.id, status: "error" },
+            })
 
             dispatch({
               type: "ADD_ERRORS",
@@ -272,7 +294,7 @@ export const useFileUpload = (
         inputRef.current.value = ""
       }
 
-      uploadFiles?.({ files: filesToAdd })
+      uploadFiles({ files: filesToAdd })
     },
     [
       localState.localFiles,
