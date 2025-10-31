@@ -5,6 +5,7 @@ import { FaSuitcase } from "react-icons/fa6"
 import { MdAlternateEmail } from "react-icons/md"
 import { TbZip } from "react-icons/tb"
 import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 import { SendEmail } from "@/api/send-email"
 import { DatePicker } from "@/components/date-picker"
 import { Button } from "@/components/ui/button"
@@ -40,25 +41,39 @@ export const ResumeStep = () => {
     navigate(-1)
   }
 
-  const handleNextStep = async () => {
-    if (hasFilesToProceed && hasSelectedClient) {
-      const { data } = await SendEmail({
-        clientId: client?.id ?? "",
-        attachmentIds: files.map((file) => file.attachmentId ?? ""),
-      })
+  const handleNextStep = () => {
+    if (!(hasFilesToProceed && hasSelectedClient)) return
 
-      const emailId = data.email_id
+    toast.promise(
+      async () => {
+        const emailResponse = await SendEmail({
+          clientId: client?.id ?? "",
+          attachmentIds: files.map((file) => file.attachmentId ?? ""),
+        })
 
-      if (emailId) {
-        clientActions.clearClient()
-        fileActions.clearUploadedFiles()
+        const emailId = emailResponse?.data.email_id
+
+        if (emailId) {
+          clientActions.clearClient()
+          fileActions.clearUploadedFiles()
+        }
+
+        return emailResponse?.data
+      },
+      {
+        loading: "Enviando...",
+        success: (res) =>
+          res?.email_id
+            ? `Email enviado para ${client?.accountant.email}`
+            : "Email enviado com sucesso",
+        error: (err) => (err as Error)?.message ?? "Erro ao enviar o email",
       }
-    }
+    )
   }
 
   useEffect(() => {
     if (!(hasFilesToProceed && hasSelectedClient)) {
-      navigate(-1)
+      navigate("/upload")
     }
   }, [hasFilesToProceed, hasSelectedClient, navigate])
 
