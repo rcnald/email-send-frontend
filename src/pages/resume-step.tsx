@@ -1,4 +1,4 @@
-// TODO: refactor to use react-query mutation and modularize the components
+import { useMutation } from "@tanstack/react-query"
 import { ArrowRightIcon, Edit } from "lucide-react"
 import { useEffect } from "react"
 import { FaSuitcase } from "react-icons/fa6"
@@ -37,6 +37,10 @@ export const ResumeStep = () => {
 
   const clientCNPJ = maskCNPJ(client?.CNPJ ?? "")
 
+  const { mutateAsync: sendEmail } = useMutation({
+    mutationFn: SendEmail,
+  })
+
   const handleGoBack = () => {
     navigate(-1)
   }
@@ -46,26 +50,19 @@ export const ResumeStep = () => {
 
     toast.promise(
       async () => {
-        const emailResponse = await SendEmail({
+        await sendEmail({
           clientId: client?.id ?? "",
           attachmentIds: files.map((file) => file.attachmentId ?? ""),
         })
-
-        const emailId = emailResponse?.data.email_id
-
-        if (emailId) {
-          clientActions.clearClient()
-          fileActions.clearUploadedFiles()
-        }
-
-        return emailResponse?.data
       },
       {
         loading: "Enviando...",
-        success: (res) =>
-          res?.email_id
-            ? `Email enviado para ${client?.accountant.email}`
-            : "Email enviado com sucesso",
+        success: () => {
+          clientActions.clearClient()
+          fileActions.clearUploadedFiles()
+
+          return `Email enviado para ${client?.accountant.email}`
+        },
         error: (err) => (err as Error)?.message ?? "Erro ao enviar o email",
       }
     )
