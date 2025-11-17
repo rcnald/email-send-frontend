@@ -13,15 +13,14 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table"
-import { PlusIcon } from "lucide-react"
 import { useState } from "react"
 import { fetchClients } from "@/api/fetch-clients"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table } from "@/components/ui/table"
 import { maskCNPJ } from "@/lib/utils"
 import { useClientStore } from "@/store/client-store"
+import { ClientsTableAddButton } from "./clients-table-add-button"
 import { ClientsTableBody } from "./clients-table-body"
 import { ClientsTableDeleteButton } from "./clients-table-delete-button"
 import { ClientsTableFilters } from "./clients-table-filters"
@@ -197,14 +196,7 @@ export function ClientsTable() {
             <ClientsTableDeleteButton onDelete={() => null} />
           ) : null}
 
-          <Button className='ml-auto' variant='outline'>
-            <PlusIcon
-              aria-hidden='true'
-              className='-ms-1 opacity-60'
-              size={16}
-            />
-            Adicionar cliente
-          </Button>
+          <ClientsTableAddButton />
         </div>
       </div>
 

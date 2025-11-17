@@ -4,6 +4,20 @@ import { DayPicker } from "react-day-picker"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+const defaultComponents = {
+  Chevron: (props: {
+    className?: string
+    size?: number
+    disabled?: boolean
+    orientation?: "left" | "right" | "up" | "down"
+  }) => {
+    if (props.orientation === "left") {
+      return <ChevronLeftIcon size={16} {...props} aria-hidden='true' />
+    }
+    return <ChevronRightIcon size={16} {...props} aria-hidden='true' />
+  },
+}
+
 function Calendar({
   className,
   classNames,
@@ -44,31 +58,18 @@ function Calendar({
   const mergedClassNames: typeof defaultClassNames = Object.keys(
     defaultClassNames
   ).reduce(
-    (acc, key) => ({
-      ...acc,
-      [key]: classNames?.[key as keyof typeof classNames]
+    (acc, key) => {
+      const k = key as keyof typeof defaultClassNames
+      acc[k] = classNames?.[k as keyof typeof classNames]
         ? cn(
-            defaultClassNames[key as keyof typeof defaultClassNames],
-            classNames[key as keyof typeof classNames]
+            defaultClassNames[k as keyof typeof defaultClassNames],
+            classNames[k as keyof typeof classNames]
           )
-        : defaultClassNames[key as keyof typeof defaultClassNames],
-    }),
+        : defaultClassNames[k as keyof typeof defaultClassNames]
+      return acc
+    },
     {} as typeof defaultClassNames
   )
-
-  const defaultComponents = {
-    Chevron: (props: {
-      className?: string
-      size?: number
-      disabled?: boolean
-      orientation?: "left" | "right" | "up" | "down"
-    }) => {
-      if (props.orientation === "left") {
-        return <ChevronLeftIcon size={16} {...props} aria-hidden='true' />
-      }
-      return <ChevronRightIcon size={16} {...props} aria-hidden='true' />
-    },
-  }
 
   const mergedComponents = {
     ...defaultComponents,

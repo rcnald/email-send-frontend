@@ -12,7 +12,7 @@ export interface SendEmailResponse {
   }
 }
 
-export const SendEmail = async ({
+export const sendEmail = async ({
   clientId,
   attachmentIds,
 }: SendEmailRequest): Promise<SendEmailResponse> => {

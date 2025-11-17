@@ -6,7 +6,7 @@ import { MdAlternateEmail } from "react-icons/md"
 import { TbZip } from "react-icons/tb"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
-import { SendEmail } from "@/api/send-email"
+import { sendEmail } from "@/api/send-email"
 import { DatePicker } from "@/components/date-picker"
 import { Button } from "@/components/ui/button"
 import {
@@ -37,8 +37,8 @@ export const ResumeStep = () => {
 
   const clientCNPJ = maskCNPJ(client?.CNPJ ?? "")
 
-  const { mutateAsync: sendEmail } = useMutation({
-    mutationFn: SendEmail,
+  const { mutateAsync: sendEmailMutation } = useMutation({
+    mutationFn: sendEmail,
   })
 
   const handleGoBack = () => {
@@ -50,7 +50,7 @@ export const ResumeStep = () => {
 
     toast.promise(
       async () => {
-        await sendEmail({
+        await sendEmailMutation({
           clientId: client?.id ?? "",
           attachmentIds: files.map((file) => file.attachmentId ?? ""),
         })
