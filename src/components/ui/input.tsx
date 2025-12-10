@@ -34,19 +34,39 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   )
 }
 
+type InputFeedbackVariant = "error" | "warning" | "success" | "feedback"
+
 function InputFeedback({
   className,
   children,
+  variant = "error",
+  when = true,
   ...props
-}: React.ComponentProps<"p">) {
+}: React.ComponentProps<"p"> & {
+  variant?: InputFeedbackVariant
+  when?: boolean
+}) {
+  const shouldShow = when && Boolean(children)
+
+  const variantStyles = {
+    error: "text-destructive",
+    warning: "text-yellow-600 dark:text-yellow-500",
+    success: "text-green-600 dark:text-green-500",
+    feedback: "text-muted-foreground",
+  }
+
   return (
-    <p className={cn("mt-1 text-destructive text-sm", className)} {...props}>
-      {children}
+    <p
+      className={cn(
+        "mt-1 min-h-5 text-sm leading-5",
+        variantStyles[variant],
+        className
+      )}
+      {...props}
+    >
+      {shouldShow ? children : null}
     </p>
   )
 }
 
-Input.Root = InputRoot
-Input.Feedback = InputFeedback
-
-export { Input }
+export { Input, InputFeedback, InputRoot }

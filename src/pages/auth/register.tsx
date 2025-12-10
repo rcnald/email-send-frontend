@@ -4,12 +4,12 @@ import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Input, InputFeedback } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 const registerSchema = z.object({
   name: z.string().min(2, "O nome deve ter no mínimo 2 caracteres"),
-  email: z.string().email("Email inválido"),
+  email: z.email("Email inválido"),
   password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
 })
 
@@ -32,190 +32,114 @@ export const Register = () => {
     alert("Cadastro simulado concluído!")
   }
 
-  // Corrigindo a verificação de validade da senha individualmente (para a mensagem de "Password is valid")
-  // O estilo foi invertido: o background agora é o lado direito
   return (
-    <div className='flex min-h-screen'>
-      {/* Right Side - Visual Effect (Agora é o fundo de tela inteira) */}
-      <div className='relative flex-1 overflow-hidden bg-background-dark'>
-        {/* Background Animado (Mosaico Abstrato) - Mantive sua lógica de fundo */}
-        <div className='absolute inset-0'>
-          {Array.from({ length: 50 }).map((_, i) => (
-            <div
-              className='absolute h-2 w-2 animate-pulse rounded-full'
-              key={`particle-${i}-${Math.random()}`}
-              style={{
-                background: ["#ff00ff", "#00ffff", "#ffff00"][i % 3],
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${2 + Math.random() * 2}s`,
-              }}
-            />
-          ))}
-        </div>
+    <div className='relative min-h-screen bg-background text-foreground'>
+      <div
+        aria-hidden='true'
+        className='absolute inset-0 bg-[url("/hermes.png")] bg-center bg-cover'
+        style={{ filter: "var(--hermes-filter)" }}
+      />
+      <div className='absolute inset-0 bg-gradient-to-br from-background/50 via-background/50 to-background/50 backdrop-blur-sm' />
 
-        {/* Logo/Nome do App no Fundo */}
-        <div className='pointer-events-none absolute inset-0 flex items-center justify-center'>
-          <div className='text-center text-white'>
-            <h1 className='font-bold text-7xl tracking-tight md:text-8xl lg:text-9xl'>
-              Modyfi
-            </h1>
-            <p className='text-xl opacity-90 md:text-2xl'>
-              Send emails simply and efficiently
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Left Side - Form Card (Sobreposto e Escuro) */}
-      <div className='absolute inset-0 flex items-center justify-center p-4 lg:w-auto lg:justify-start'>
-        <div className='w-full max-w-sm rounded-xl bg-gray-900/95 p-8 shadow-2xl backdrop-blur-sm sm:max-w-md'>
-          {/* Header */}
-          <div className='mb-8 text-white'>
-            <div className='mb-4 flex items-center'>
-              {/* O Ícone 👋 e o Título */}
-              <h1 className='mr-2 font-bold text-3xl'>👋</h1>
-              <h2 className='font-semibold text-2xl'>Welcome to Modyfi!</h2>
+      <div className='relative z-10 mx-auto flex min-h-screen w-full items-center justify-start px-4 py-10 sm:px-40'>
+        <div className='w-full max-w-md rounded-xl border border-border bg-card/90 p-6 shadow-2xl backdrop-blur sm:p-8'>
+          <div className='mb-8'>
+            <div className='mb-3 flex items-center gap-2'>
+              <span className='text-2xl sm:text-3xl'>👋</span>
+              <h2 className='font-semibold text-xl sm:text-2xl'>
+                Bem-vindo ao ******!
+              </h2>
             </div>
-
-            <p className='text-gray-400 text-sm'>
-              Already have an account?{" "}
+            <p className='text-muted-foreground text-sm'>
+              Já tem uma conta?{" "}
               <Link
                 className='font-medium text-primary hover:underline'
                 to='/login'
               >
-                Sign in
+                Entrar
               </Link>
             </p>
           </div>
 
-          {/* Google Sign Up */}
-          <Button
-            className='mb-6 w-full bg-white text-gray-900 hover:bg-gray-100'
-            type='button'
-            variant='outline'
-          >
-            <svg className='mr-2 h-4 w-4' viewBox='0 0 24 24'>
-              <title>Google Icon</title>
-              {/* Paths do Google SVG... */}
-              <path
-                d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'
-                fill='#4285F4'
-              />
-              <path
-                d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'
-                fill='#34A853'
-              />
-              <path
-                d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z'
-                fill='#FBBC05'
-              />
-              <path
-                d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'
-                fill='#EA4335'
-              />
-            </svg>
-            Sign up with Google
-          </Button>
-
-          <div className='relative mb-6'>
-            <div className='absolute inset-0 flex items-center'>
-              {/* Linha divisória branca no fundo escuro */}
-              <span className='w-full border-gray-700 border-t' />
-            </div>
-            <div className='relative flex justify-center text-xs uppercase'>
-              {/* Fundo do span deve ser o mesmo do card (bg-gray-900) */}
-              <span className='bg-gray-900/95 px-2 text-gray-500'>OR</span>
-            </div>
-          </div>
-
-          {/* Form */}
-          <form className='space-y-4' onSubmit={handleSubmit(onSubmit)}>
-            {/* Campo Nome */}
+          <form className='' onSubmit={handleSubmit(onSubmit)}>
             <div className='space-y-2'>
-              <Label className='text-gray-300' htmlFor='name'>
-                Name
-              </Label>
+              <Label htmlFor='name'>Nome</Label>
               <Input
-                className='border-gray-700 bg-gray-800 text-white'
+                aria-invalid={!!errors.name}
+                className='border-border bg-background/70 text-foreground'
                 id='name'
-                placeholder='Lidya'
+                placeholder='Ronaldo'
                 {...register("name")}
               />
-              {errors.name && (
-                <p className='text-red-500 text-sm'>{errors.name.message}</p>
-              )}
+              <InputFeedback variant='error'>
+                {errors.name?.message}
+              </InputFeedback>
             </div>
 
-            {/* Campo Email */}
             <div className='space-y-2'>
-              <Label className='text-gray-300' htmlFor='email'>
-                Email
-              </Label>
+              <Label htmlFor='email'>Email</Label>
               <Input
-                className='border-gray-700 bg-gray-800 text-white'
+                aria-invalid={!!errors.email}
+                className='border-border bg-background/70 text-foreground'
                 id='email'
-                placeholder='lidya@refero.design'
+                placeholder='ronaldo@example.com'
                 type='email'
                 {...register("email")}
               />
-              {errors.email && (
-                <p className='text-red-500 text-sm'>{errors.email.message}</p>
-              )}
+              <InputFeedback variant='error'>
+                {errors.email?.message}
+              </InputFeedback>
             </div>
 
-            {/* Campo Senha */}
             <div className='space-y-2'>
-              <Label className='text-gray-300' htmlFor='password'>
-                Password
-              </Label>
+              <Label htmlFor='password'>Senha</Label>
               <Input
-                className='border-gray-700 bg-gray-800 text-white'
+                aria-invalid={!!errors.password}
+                className='border-border bg-background/70 text-foreground'
                 id='password'
                 placeholder='***********'
                 type='password'
                 {...register("password")}
               />
-              {errors.password && (
-                <p className='text-red-500 text-sm'>
-                  {errors.password.message}
-                </p>
-              )}
-              {/* Mensagem de sucesso da senha (se for válida e não houver outros erros) */}
-              {isValid && !errors.password && (
-                <p className='flex items-center text-green-500 text-sm'>
-                  <Check className='mr-1 h-4 w-4' />
-                  Password is valid
-                </p>
-              )}
+              <InputFeedback
+                className='flex'
+                variant={errors.password ? "error" : "success"}
+                when={!!errors.password || (isValid && !errors.password)}
+              >
+                {errors.password ? (
+                  errors.password.message
+                ) : (
+                  <>
+                    <Check className='mr-1 h-4 w-4' />
+                    Senha válida
+                  </>
+                )}
+              </InputFeedback>
             </div>
 
-            {/* Botão de Envio */}
             <Button
-              className='mt-6 w-full bg-gray-700 text-white hover:bg-gray-600'
+              className='mt-6 w-full'
               disabled={!isValid || isSubmitting}
-              type='submit' // Desabilita se não for válido ou estiver enviando
+              type='submit'
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                  Processing...
+                  Processando...
                 </>
               ) : (
-                "Create Account"
+                "Criar Conta"
               )}
             </Button>
 
-            {/* Termos de Uso */}
-            <p className='pt-4 text-center text-gray-500 text-xs'>
-              By signing up you agree to our{" "}
-              <Link className='underline hover:text-white' to='/terms'>
-                Terms of Use
+            <p className='pt-4 text-center text-muted-foreground text-xs'>
+              Ao se inscrever, você concorda com nossos{" "}
+              <Link className='underline hover:text-foreground' to='/terms'>
+                Termos de Uso
               </Link>{" "}
-              and{" "}
-              <Link className='underline hover:text-white' to='/privacy'>
-                Privacy Policy
+              e{" "}
+              <Link className='underline hover:text-foreground' to='/privacy'>
+                Política de Privacidade
               </Link>
             </p>
           </form>
