@@ -27,7 +27,7 @@ export const ClientsTableBody = <TData,>({
       ) : (
         <TableRow>
           <TableCell className='h-24 text-center' colSpan={columnsQuantity}>
-            No results.
+            Sem resultados.
           </TableCell>
         </TableRow>
       )}

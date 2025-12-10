@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 import { createClient } from "@/api/create-client"
+import { formatToCNPJ } from "@/lib/utils"
 import { Button } from "../ui/button"
 import {
   Dialog,
@@ -22,24 +23,6 @@ import { Label } from "../ui/label"
 
 const NON_DIGIT_REGEX = /\D/g
 const LEADING_ZEROS_REGEX = /^0+/
-const CNPJ_PATTERN_1 = /^(\d{2})(\d)/
-const CNPJ_PATTERN_2 = /^(\d{2})\.(\d{3})(\d)/
-const CNPJ_PATTERN_3 = /\.(\d{3})(\d)/
-const CNPJ_PATTERN_4 = /(\d{4})(\d)/
-
-const formatToCNPJ = (value: string): string => {
-  const valueRaw = value
-    .replace(NON_DIGIT_REGEX, "")
-    .replace(LEADING_ZEROS_REGEX, "")
-    .slice(0, 14)
-
-  return valueRaw
-    .padStart(14, "0")
-    .replace(CNPJ_PATTERN_1, "$1.$2")
-    .replace(CNPJ_PATTERN_2, "$1.$2.$3")
-    .replace(CNPJ_PATTERN_3, ".$1/$2")
-    .replace(CNPJ_PATTERN_4, "$1-$2")
-}
 
 const createClientSchema = z.object({
   name: z.string().min(2, "O nome deve ter no mínimo 2 caracteres"),

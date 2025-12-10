@@ -184,12 +184,11 @@ export function ClientsTable() {
     <div className='space-y-4'>
       <div className='flex flex-wrap items-center justify-between gap-3'>
         <div className='flex items-center gap-3'>
-          <div className='relative'>
-            <ClientsTableFilters
-              filterValue={table.getColumn("name")?.getFilterValue() as string}
-              setFilterValue={table.getColumn("name")?.setFilterValue}
-            />
-          </div>
+          <ClientsTableFilters
+            className='relative'
+            filterValue={table.getColumn("name")?.getFilterValue() as string}
+            setFilterValue={table.getColumn("name")?.setFilterValue}
+          />
         </div>
         <div className='flex items-center gap-3'>
           {isRowSelected ? (

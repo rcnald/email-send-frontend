@@ -2,6 +2,18 @@ import type * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+function InputRoot({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      className={cn(
+        "flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input
@@ -21,5 +33,20 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
     />
   )
 }
+
+function InputFeedback({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"p">) {
+  return (
+    <p className={cn("mt-1 text-destructive text-sm", className)} {...props}>
+      {children}
+    </p>
+  )
+}
+
+Input.Root = InputRoot
+Input.Feedback = InputFeedback
 
 export { Input }

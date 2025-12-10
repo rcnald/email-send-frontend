@@ -1,16 +1,17 @@
 import { CircleXIcon, ListFilterIcon } from "lucide-react"
-import { useId, useRef } from "react"
+import { type ComponentProps, useId, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { Input } from "../ui/input"
 
-export interface ClientsTableFiltersProps {
+export type ClientsTableFiltersProps = {
   filterValue?: string
   setFilterValue?: (value: string) => void
-}
+} & ComponentProps<"div">
 
 export const ClientsTableFilters = ({
   filterValue = "",
   setFilterValue,
+  ...props
 }: ClientsTableFiltersProps) => {
   const id = useId()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -18,7 +19,7 @@ export const ClientsTableFilters = ({
   const hasFilterValue = Boolean(filterValue)
 
   return (
-    <>
+    <div {...props}>
       <Input
         aria-label='Filtrar por nome'
         className={cn("peer min-w-60 ps-9", hasFilterValue && "pe-9")}
@@ -50,6 +51,6 @@ export const ClientsTableFilters = ({
           <CircleXIcon aria-hidden='true' size={16} />
         </button>
       ) : null}
-    </>
+    </div>
   )
 }
