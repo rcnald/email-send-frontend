@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import { z } from "zod"
 import { createClient } from "@/api/create-client"
 import { formatToCNPJ } from "@/lib/utils"
-import { Button } from "../ui/button"
+import { Button } from "../../../components/ui/button"
 import {
   Dialog,
   DialogClose,
@@ -17,9 +17,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+} from "../../../components/ui/dialog"
+import { Input } from "../../../components/ui/input"
+import { Label } from "../../../components/ui/label"
 
 const NON_DIGIT_REGEX = /\D/g
 const LEADING_ZEROS_REGEX = /^0+/

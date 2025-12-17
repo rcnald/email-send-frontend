@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, Loader2 } from "lucide-react" // Importei o Loader2 e Check do Lucide
+import { Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
@@ -7,31 +7,29 @@ import { Button } from "@/components/ui/button"
 import { Input, InputFeedback } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-const registerSchema = z.object({
-  name: z.string().min(2, "O nome deve ter no mínimo 2 caracteres"),
+const loginSchema = z.object({
   email: z.email("Email inválido"),
   password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
 })
 
-type RegisterSchema = z.infer<typeof registerSchema>
+type LoginSchema = z.infer<typeof loginSchema>
 
-export const Register = () => {
+export const Login = () => {
   const {
     register,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<RegisterSchema>({
-    resolver: zodResolver(registerSchema),
+  } = useForm<LoginSchema>({
+    resolver: zodResolver(loginSchema),
     mode: "onChange",
   })
 
-  const canRegister = isValid && !isSubmitting
+  const canLogin = isValid && !isSubmitting
 
-  // Simulação de delay para a mutation
-  const onSubmit = async (_data: RegisterSchema) => {
-    // TODO: Implementar registro com mutation real (e.g., react-query/tanstack query)
+  const onSubmit = async (_data: LoginSchema) => {
+    // TODO: Implementar login com mutation
     await new Promise((resolve) => setTimeout(resolve, 2000))
-    alert("Cadastro simulado concluído!")
+    alert("Login simulado concluído!")
   }
 
   return (
@@ -40,33 +38,21 @@ export const Register = () => {
         <div className='mb-3 flex items-center gap-2'>
           <span className='text-2xl sm:text-3xl'>👋</span>
           <h2 className='font-semibold text-xl sm:text-2xl'>
-            Bem-vindo ao ******!
+            Bem-vindo de volta!
           </h2>
         </div>
         <p className='text-muted-foreground text-sm'>
-          Já tem uma conta?{" "}
+          Não tem uma conta?{" "}
           <Link
             className='font-medium text-primary hover:underline'
-            to='/auth/login'
+            to='/auth/register'
           >
-            Entrar
+            Cadastre-se
           </Link>
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className='space-y-2'>
-          <Label htmlFor='name'>Nome</Label>
-          <Input
-            aria-invalid={Boolean(errors.name)}
-            className='border-border bg-background/70 text-foreground'
-            id='name'
-            placeholder='Ronaldo'
-            {...register("name")}
-          />
-          <InputFeedback variant='error'>{errors.name?.message}</InputFeedback>
-        </div>
-
         <div className='space-y-2'>
           <Label htmlFor='email'>Email</Label>
           <Input
@@ -81,7 +67,15 @@ export const Register = () => {
         </div>
 
         <div className='space-y-2'>
-          <Label htmlFor='password'>Senha</Label>
+          <div className='flex items-center justify-between'>
+            <Label htmlFor='password'>Senha</Label>
+            <Link
+              className='font-medium text-primary text-sm hover:underline'
+              to='/forgot-password'
+            >
+              Esqueceu a senha?
+            </Link>
+          </div>
           <Input
             aria-invalid={Boolean(errors.password)}
             className='border-border bg-background/70 text-foreground'
@@ -90,35 +84,24 @@ export const Register = () => {
             type='password'
             {...register("password")}
           />
-          <InputFeedback
-            className='flex'
-            variant={errors.password ? "error" : "success"}
-            when={!!errors.password || (isValid && !errors.password)}
-          >
-            {errors.password ? (
-              errors.password.message
-            ) : (
-              <>
-                <Check className='mr-1 h-4 w-4' />
-                Senha válida
-              </>
-            )}
+          <InputFeedback variant='error'>
+            {errors.password?.message}
           </InputFeedback>
         </div>
 
-        <Button className='mt-6 w-full' disabled={!canRegister} type='submit'>
+        <Button className='mt-6 w-full' disabled={!canLogin} type='submit'>
           {isSubmitting ? (
             <>
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-              Processando...
+              Entrando...
             </>
           ) : (
-            "Criar Conta"
+            "Entrar"
           )}
         </Button>
 
         <p className='pt-4 text-center text-muted-foreground text-xs'>
-          Ao se inscrever, você concorda com nossos{" "}
+          Ao entrar, você concorda com nossos{" "}
           <Link className='underline hover:text-foreground' to='/terms'>
             Termos de Uso
           </Link>{" "}

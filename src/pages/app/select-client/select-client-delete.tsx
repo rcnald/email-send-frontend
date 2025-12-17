@@ -9,8 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog"
-import { Button } from "../ui/button"
+} from "../../../components/ui/alert-dialog"
+import { Button } from "../../../components/ui/button"
 
 export interface ClientsTableDeleteButtonProps {
   onDelete: () => void

@@ -13,36 +13,34 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table"
-import { useState } from "react"
+import { ArrowRightIcon } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { fetchClients } from "@/api/fetch-clients"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Table } from "@/components/ui/table"
 import { maskCNPJ } from "@/lib/utils"
 import { useClientStore } from "@/store/client-store"
-import { ClientsTableAddButton } from "./clients-table-add-button"
-import { ClientsTableBody } from "./clients-table-body"
-import { ClientsTableDeleteButton } from "./clients-table-delete-button"
-import { ClientsTableFilters } from "./clients-table-filters"
-import { ClientsTableHeader } from "./clients-table-header"
-
-type Item = {
-  id: string
-  name: string
-  CNPJ: string
-  accountant: {
-    name: string
-    email: string
-  }
-  status: "sent" | "not_send"
-}
+import { useFileStore } from "@/store/file-store"
+import { ClientsTableAddButton } from "./select-client-add"
+import { ClientsTableDeleteButton } from "./select-client-delete"
+import { ClientsTableFilters } from "./select-client-filters"
+import {
+  SelectClientsTable,
+  type SelectClientTableItem,
+} from "./select-client-table"
 
 const STATUS_OPTIONS = {
   sent: "Enviado",
   not_sent: "Não Enviado",
 }
 
-const multiColumnFilterFn: FilterFn<Item> = (row, _, filterValue) => {
+const multiColumnFilterFn: FilterFn<SelectClientTableItem> = (
+  row,
+  _,
+  filterValue
+) => {
   const searchableRowContent = row.original.name.toLowerCase()
 
   const searchTerm = (filterValue ?? "").toLowerCase()
@@ -50,7 +48,7 @@ const multiColumnFilterFn: FilterFn<Item> = (row, _, filterValue) => {
   return searchableRowContent.includes(searchTerm)
 }
 
-const columns: ColumnDef<Item>[] = [
+const columns: ColumnDef<SelectClientTableItem>[] = [
   {
     id: "select",
     header: () => <span className='sr-only'>Selecionar</span>,
@@ -108,7 +106,7 @@ const columns: ColumnDef<Item>[] = [
   },
 ]
 
-export function ClientsTable() {
+export const SelectClientStep = () => {
   const { addClient, clearClient } = useClientStore((state) => state.actions)
   const client = useClientStore((state) => state.client)
 
@@ -180,33 +178,73 @@ export function ClientsTable() {
 
   const isRowSelected = table.getSelectedRowModel().rows.length > 0
 
-  return (
-    <div className='space-y-4'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <div className='flex items-center gap-3'>
-          <ClientsTableFilters
-            className='relative'
-            filterValue={table.getColumn("name")?.getFilterValue() as string}
-            setFilterValue={table.getColumn("name")?.setFilterValue}
-          />
-        </div>
-        <div className='flex items-center gap-3'>
-          {isRowSelected ? (
-            <ClientsTableDeleteButton onDelete={() => null} />
-          ) : null}
+  const navigate = useNavigate()
+  const hasSelectedClient = useClientStore((state) => Boolean(state.client))
+  const hasFilesToProceed = useFileStore(
+    (state) => state.uploadedFiles.length > 0
+  )
 
-          <ClientsTableAddButton />
+  const handleGoBack = () => {
+    navigate(-1)
+  }
+
+  const handleNextStep = () => {
+    if (hasFilesToProceed) {
+      navigate("/resume")
+    }
+  }
+
+  useEffect(() => {
+    if (!hasFilesToProceed) {
+      navigate("/upload", { replace: true })
+    }
+  }, [hasFilesToProceed, navigate])
+
+  return (
+    <div className='grid grid-cols-1 gap-5 self-start'>
+      <div>
+        <div className='flex flex-wrap items-center justify-between gap-3'>
+          <div className='flex items-center gap-3'>
+            <ClientsTableFilters
+              className='relative'
+              filterValue={table.getColumn("name")?.getFilterValue() as string}
+              setFilterValue={table.getColumn("name")?.setFilterValue}
+            />
+          </div>
+          <div className='flex items-center gap-3'>
+            {isRowSelected ? (
+              <ClientsTableDeleteButton onDelete={() => null} />
+            ) : null}
+
+            <ClientsTableAddButton />
+          </div>
+        </div>
+
+        <div className='overflow-hidden rounded-md border bg-background'>
+          <SelectClientsTable table={table} />
         </div>
       </div>
 
-      <div className='overflow-hidden rounded-md border bg-background'>
-        <Table className='table-auto'>
-          <ClientsTableHeader tableHeaderGroups={table.getHeaderGroups()} />
-          <ClientsTableBody
-            columnsQuantity={table.getVisibleLeafColumns().length}
-            tableRowModel={table.getRowModel()}
+      <div className='flex w-full flex-col gap-3 place-self-end md:flex-row lg:w-fit'>
+        <Button
+          className='w-full lg:w-fit'
+          onClick={handleGoBack}
+          variant={"secondary"}
+        >
+          Voltar
+        </Button>
+        <Button
+          className='group w-full lg:w-fit'
+          disabled={!hasSelectedClient}
+          onClick={handleNextStep}
+        >
+          Continuar
+          <ArrowRightIcon
+            aria-hidden='true'
+            className='-me-1 opacity-60 transition-transform group-hover:translate-x-0.5'
+            size={16}
           />
-        </Table>
+        </Button>
       </div>
     </div>
   )

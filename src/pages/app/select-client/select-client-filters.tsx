@@ -1,7 +1,7 @@
 import { CircleXIcon, ListFilterIcon } from "lucide-react"
 import { type ComponentProps, useId, useRef } from "react"
 import { cn } from "@/lib/utils"
-import { Input } from "../ui/input"
+import { Input } from "../../../components/ui/input"
 
 export type ClientsTableFiltersProps = {
   filterValue?: string
