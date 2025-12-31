@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils"
 export const AuthLayout = () => {
   const location = useLocation()
 
-  const isLoginPage = location.pathname === "/auth/login"
-  const isRegisterPage = location.pathname === "/auth/register"
+  const isLoginPage = location.pathname === "/sign-in"
+  const isRegisterPage = location.pathname === "/sign-up"
 
   return (
     <div className='relative min-h-screen bg-background text-foreground'>
