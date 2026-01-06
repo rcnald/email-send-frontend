@@ -1,11 +1,35 @@
-import { Outlet, useLocation } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
+import { useEffect } from "react"
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom"
+import { getProfile } from "@/api/get-profile"
+import { api, setupResponseInterceptor } from "@/lib/axios"
 import { cn } from "@/lib/utils"
 
 export const AuthLayout = () => {
+  const navigate = useNavigate()
+
   const location = useLocation()
 
   const isLoginPage = location.pathname === "/sign-in"
   const isRegisterPage = location.pathname === "/sign-up"
+
+  const { isLoading, isError } = useQuery({
+    queryKey: ["me"],
+    queryFn: getProfile,
+    retry: false,
+  })
+
+  useEffect(() => {
+    const interceptorId = setupResponseInterceptor(api, navigate)
+
+    return () => api.interceptors.response.eject(interceptorId)
+  }, [navigate])
+
+  if (isLoading) return null
+
+  if (!isError && isLoginPage) {
+    return <Navigate replace to='/upload' />
+  }
 
   return (
     <div className='relative min-h-screen bg-background text-foreground'>
