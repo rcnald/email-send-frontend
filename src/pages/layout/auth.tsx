@@ -12,6 +12,7 @@ export const AuthLayout = () => {
 
   const isLoginPage = location.pathname === "/sign-in"
   const isRegisterPage = location.pathname === "/sign-up"
+  const isRootPath = location.pathname === "/"
 
   const { isLoading, isError } = useQuery({
     queryKey: ["me"],
@@ -27,7 +28,7 @@ export const AuthLayout = () => {
 
   if (isLoading) return null
 
-  if (!isError && isLoginPage) {
+  if ((!isError && isLoginPage) || isRootPath) {
     return <Navigate replace to='/upload' />
   }
 
