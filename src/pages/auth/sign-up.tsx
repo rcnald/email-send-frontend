@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { z } from "zod"
 import type { ApiErrorData } from "@/api/@types/error"
 import { signUp } from "@/api/sign-up"
+import { EmailIcon } from "@/components/icons/email"
 import { Button } from "@/components/ui/button"
 import { Input, InputFeedback } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -75,62 +76,59 @@ export const SignUp = () => {
   }, [setFocus])
 
   return (
-    <>
-      <div className='mb-8'>
-        <div className='mb-3 flex items-center gap-2'>
-          <span className='text-2xl sm:text-3xl'>👋</span>
-          <h2 className='font-semibold text-xl sm:text-2xl'>
-            Bem-vindo ao ******!
-          </h2>
+    <div className='flex w-full max-w-[335px] flex-col items-center gap-8'>
+      <div className='flex flex-col items-center gap-8'>
+        <div className='flex w-fit rounded-md border-gradient bg-linear-(--primary-gradient) p-2'>
+          <EmailIcon className='text-2xl text-pink-start' />
         </div>
-        <p className='text-muted-foreground text-sm'>
-          Já tem uma conta?{" "}
-          <Link
-            className='font-medium text-primary hover:underline'
-            to='/sign-in'
-          >
-            Entrar
-          </Link>
-        </p>
+        <div className='flex flex-col items-center gap-2 '>
+          <h1 className='text-center font-jakarta font-semibol text-xl sm:text-[32px]'>
+            Comece a Otimizar Seus Envios Hoje
+          </h1>
+          <p className='text-center font-sans text-muted-foreground text-xs'>
+            Cadastre-se em segundos e tenha controle total sobre seus clientes e
+            contadores desde o primeiro clique.
+          </p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className='space-y-2'>
+      <form
+        className='flex w-full flex-col items-center gap-4'
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <div className='flex w-full flex-col gap-2'>
           <Label htmlFor='name'>Nome</Label>
           <Input
             aria-invalid={Boolean(errors.name)}
-            className='border-border bg-background/70 text-foreground'
             id='name'
             placeholder='Ronaldo'
             {...register("name")}
           />
-          <InputFeedback variant='error'>{errors.name?.message}</InputFeedback>
+          {/*<InputFeedback variant='error'>{errors.name?.message}</InputFeedback>*/}
         </div>
 
-        <div className='space-y-2'>
+        <div className='flex w-full flex-col gap-2'>
           <Label htmlFor='email'>Email</Label>
           <Input
             aria-invalid={Boolean(errors.email)}
-            className='border-border bg-background/70 text-foreground'
             id='email'
             placeholder='ronaldo@example.com'
             type='text'
             {...register("email")}
           />
-          <InputFeedback variant='error'>{errors.email?.message}</InputFeedback>
+          {/*<InputFeedback variant='error'>{errors.email?.message}</InputFeedback>*/}
         </div>
 
-        <div className='space-y-2'>
+        <div className='flex w-full flex-col gap-2'>
           <Label htmlFor='password'>Senha</Label>
           <Input
             aria-invalid={Boolean(errors.password)}
-            className='border-border bg-background/70 text-foreground'
             id='password'
             placeholder='***********'
             type='password'
             {...register("password")}
           />
-          <InputFeedback
+          {/*<InputFeedback
             className='flex'
             variant={errors.password ? "error" : "success"}
             when={showsPasswordFeedback}
@@ -143,31 +141,59 @@ export const SignUp = () => {
                 Senha válida
               </>
             )}
-          </InputFeedback>
+          </InputFeedback>*/}
         </div>
 
-        <Button className='mt-6 w-full' disabled={!canRegister} type='submit'>
+        <div className='flex w-full flex-col gap-2'>
+          <Label htmlFor='password'>Confirme sua Senha</Label>
+          <Input
+            aria-invalid={Boolean(errors.password)}
+            id='password'
+            placeholder='***********'
+            type='password'
+            {...register("password")}
+          />
+          {/*<InputFeedback
+            className='flex'
+            variant={errors.password ? "error" : "success"}
+            when={showsPasswordFeedback}
+          >
+            {errors.password ? (
+              errors.password.message
+            ) : (
+              <>
+                <Check className='mr-1 h-4 w-4' />
+                Senha válida
+              </>
+            )}
+          </InputFeedback>*/}
+        </div>
+
+        <Button
+          className='mt-4 w-full py-3 font-medium font-sans text-xs'
+          disabled={!canRegister}
+          type='submit'
+        >
           {isPending ? (
             <>
               <Loader2 className='mr-2 h-4 w-4 animate-spin' />
               Processando...
             </>
           ) : (
-            "Criar Conta"
+            "Cadastrar"
           )}
         </Button>
 
-        <p className='pt-4 text-center text-muted-foreground text-xs'>
-          Ao se inscrever, você concorda com nossos{" "}
-          <Link className='underline hover:text-foreground' to='/terms'>
-            Termos de Uso
-          </Link>{" "}
-          e{" "}
-          <Link className='underline hover:text-foreground' to='/privacy'>
-            Política de Privacidade
+        <p className='font-sans text-muted-foreground text-xs '>
+          Já possui uma conta?{" "}
+          <Link
+            className='font-bold text-primary hover:underline'
+            to='/sign-in'
+          >
+            Fazer Login
           </Link>
         </p>
       </form>
-    </>
+    </div>
   )
 }

@@ -1,6 +1,8 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
-  "extends": ["ultracite"],
+  "extends": [
+    "ultracite"
+  ],
   "javascript": {
     "formatter": {
       "lineWidth": 80,
@@ -28,7 +30,10 @@
         "noConsole": {
           "level": "error",
           "options": {
-            "allow": ["error", "warn"]
+            "allow": [
+              "error",
+              "warn"
+            ]
           }
         }
       }
