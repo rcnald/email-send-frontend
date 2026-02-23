@@ -6,7 +6,9 @@ export interface GetProfileResponse {
 }
 
 export const getProfile = async (): Promise<GetProfileResponse> => {
-  const response = await api.get<GetProfileResponse>("/me")
+  const response = await api.get<GetProfileResponse>("/me", {
+    withCredentials: true,
+  })
 
   return response.data
 }

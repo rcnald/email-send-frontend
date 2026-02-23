@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --radius: 0.75rem;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -134,13 +135,39 @@
   /* new token: #CC2036 for button gradient start */
   --gradient-red-end: oklch(0.518 0.188 18.57);
   /* new token: #D52840 for button gradient end */
+  --gradient-pink-start: oklch(0.6858 0.2102 9.99);
+  /* new token: #FF517C for gradient pink start */
+  --gradient-pink-end: oklch(0.7408 0.1654 6.51);
+  /* new token: #ff799a for gradient pink end */
+  --gradient-pink-light: oklch(0.881 0.063 18.42);
+  /* new token: #FFC8C8 for gradient pink light */
+  --gradient-gray-start: oklch(0.4 0.009 17.72);
+  /* new token: light theme gray gradient start */
+  --gradient-gray-end: oklch(0.6 0 0);
+  /* new token: light theme gray gradient end */
+  --badge-gradient-end: oklch(0.5 0.15 18.57);
+  /* new token: light theme badge gradient end */
 
   --primary-gradient: 180deg,
-    var(--gradient-pink) 1%,
-    var(--gradient-red-dark) 9%,
-    var(--gradient-red-vibrant) 50%,
-    var(--gradient-red-dark) 89%,
-    var(--gradient-pink) 98%;
+    var(--gradient-red-start) 0%,
+    var(--gradient-red-end) 100%;
+
+  --secondary-gradient: 90deg,
+    var(--gradient-pink-start) 0%,
+    var(--gradient-red-start) 100%;
+
+  --tertiary-gradient: 237deg,
+    var(--gradient-pink-end) -45%,
+    var(--gradient-gray-start) 52%,
+    var(--gradient-gray-end) 145%;
+
+  --transparent-gradient: 0deg,
+    transparent 10%,
+    var(--gradient-red-start) 50%,
+    transparent 90%;
+
+  --badge-shadow: inset 0px 2px 1px 0px rgba(0, 0, 0, 0.25);
+  /* new token: light badge inset shadow */
 
   --input-shadow: -8px 8px 12px 0px rgba(172, 22, 42, 0.1);
   /* new token: light input shadow */
@@ -221,25 +248,43 @@
   /* new token: #8D8C8E for placeholder text */
   --badge-background: oklch(0.2338 0.0935 14.8);
   /* new token: #3F000F for badge container */
+  --badge-gradient-end: oklch(0.381 0.1503 28.61);
+  /* new token: #800807 for badge gradient end */
   --gradient-red-start: oklch(0.6301 0.2535 21.24);
   /* new token: #FE003E for button gradient start */
   --gradient-pink-start: oklch(0.6858 0.2102 9.99);
   /* new token: #FF517C for button gradient start */
-  --gradient-pink: oklch(0.881 0.063 18.42);
-  /* new token: #FFC8C8 for button gradient start */
+  --gradient-pink-end: oklch(0.7408 0.1654 6.51);
+  /* new token: #ff799a for button gradient start */
+  --gradient-gray-start: oklch(0.2712 0.009 17.72);
+  /* new token: #2B2525 for button gradient start */
+  --gradient-gray-end: oklch(0.5103 0 0);
+  /* new token: #666666 for button gradient start */
+  --gradient-pink-light: oklch(0.881 0.063 18.42);
+  /* new token: #FFC8C8 for gradient pink light */
   --gradient-red-end: oklch(0.426 0.170971 19.4963);
   /* new token: #960025 for button gradient end */
 
   --primary-gradient: 0deg,
-    var(--gradient-pink) -35%,
+    var(--gradient-pink-light) -35%,
     var(--gradient-red-end) 9%,
     var(--gradient-red-start) 50%,
     var(--gradient-red-end) 89%,
-    var(--gradient-pink) 15%;
+    var(--gradient-pink-light) 15%;
 
   --secondary-gradient: 90deg,
     var(--gradient-pink-start) 0%,
     var(--gradient-red-start) 100%;
+
+  --tertiary-gradient: 237deg,
+    var(--gradient-pink-end) -45%,
+    var(--gradient-gray-start) 52%,
+    var(--gradient-gray-end) 145%;
+
+  --transparent-gradient: 0deg,
+    transparent 10%,
+    var(--gradient-red-start) 50%,
+    transparent 90%;
 
   --form-shadow: -8px 8px 12px 0px rgba(0, 0, 0, 0.25);
   /* new token: form container shadow */
@@ -248,6 +293,8 @@
   --badge-shadow: inset 0px 2px 1px 0px rgba(0, 0, 0, 0.56);
   /* new token: badge inset shadow */
 }
+
+
 
 @layer base {
   * {
@@ -265,6 +312,7 @@
   /* Rounded gradient 1px border via masked pseudo-element */
   .border-gradient {
     position: relative;
+    --border-gradient: var(--secondary-gradient);
   }
 
   .border-gradient::before {
@@ -273,7 +321,7 @@
     inset: 0;
     padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(var(--secondary-gradient));
+    background: linear-gradient(var(--border-gradient));
     -webkit-mask:
       linear-gradient(#000 0 0) content-box,
       linear-gradient(#000 0 0);
@@ -281,5 +329,32 @@
     mask-composite: exclude;
     pointer-events: none;
     z-index: 0;
+  }
+
+  .border-gradient-primary {
+    --border-gradient: var(--primary-gradient);
+  }
+
+  .border-gradient-secondary {
+    --border-gradient: var(--secondary-gradient);
+  }
+
+  .border-gradient-tertiary {
+    --border-gradient: var(--tertiary-gradient);
+  }
+
+  .border-gradient-transparent {
+    --border-gradient: var(--transparent-gradient);
+  }
+
+  .border-gradient-transparent::before {
+    inset: auto !important;
+    height: 100% !important;
+    right: 0 !important;
+  }
+
+  .border-gradient-inner::before {
+    padding: 1px;
+    margin: 16px;
   }
 }

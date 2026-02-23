@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button"
 import { Input, InputFeedback } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getApiErrorMessages } from "@/lib/axios"
+import { EmailIcon } from "@/components/icons/email"
+import { AnimatePresence, motion } from "motion/react"
 
 const signInSchema = z.object({
   email: z.email("Email inválido"),
@@ -24,13 +26,13 @@ type SignInSchema = z.infer<typeof signInSchema>
 export const SignIn = () => {
   const [searchParams] = useSearchParams()
 
-  const navigate = useNavigate()
   const email = searchParams.get("email")
 
   const {
     register,
     handleSubmit,
     setFocus,
+    watch,
     formState: { errors, isValid },
   } = useForm<SignInSchema>({
     resolver: zodResolver(signInSchema),
@@ -40,113 +42,124 @@ export const SignIn = () => {
     },
   })
 
-  const { mutateAsync: authenticate, isPending } = useMutation({
-    mutationFn: signIn,
-    onError: (error: AxiosError<ApiErrorData>) => {
-      const messages = getApiErrorMessages(error)
-      messages.forEach((msg) => {
-        toast.error(msg)
-      })
-    },
-    onSuccess() {
-      toast.success("Logado com sucesso! Bem-vindo de volta.")
-      navigate("/")
-    },
-  })
+  const navigate = useNavigate();
 
-  const canLogin = isValid && !isPending
+	const emailValue = watch("email").trim();
+	const shouldShowPasswordFields = !errors.email && emailValue.length > 0;
 
-  const onSubmit = async (data: SignInSchema) => {
-    await authenticate(data)
-  }
+	const { mutateAsync: loginHelper, isPending } = useMutation({
+		mutationFn: signIn,
+		onError: (error: AxiosError<ApiErrorData>) => {
+			const messages = getApiErrorMessages(error);
 
-  useEffect(() => {
-    if (email) {
-      return setFocus("password")
-    }
+			for (const message of messages) {
+				toast.error(message);
+			}
+		},
+		onSuccess() {
+			toast.success(
+				"Login realizado com sucesso!",
+			);
+			navigate(`/upload`);
+		},
+	});
 
-    setFocus("email")
-  }, [email, setFocus])
+	const canLogin = isValid && !isPending;
 
-  return (
-    <>
-      <div className='mb-8'>
-        <div className='mb-3 flex items-center gap-2'>
-          <span className='text-2xl sm:text-3xl'>👋</span>
-          <h2 className='font-semibold text-xl sm:text-2xl'>
-            Bem-vindo de volta!
-          </h2>
-        </div>
-        <p className='text-muted-foreground text-sm'>
-          Não tem uma conta?{" "}
-          <Link
-            className='font-medium text-primary hover:underline'
-            to='/sign-up'
-          >
-            Cadastre-se
-          </Link>
-        </p>
-      </div>
+	const onSubmit = async ({ email, password }: SignInSchema) => {
+		await loginHelper({ email, password });
+	};
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className='space-y-2'>
-          <Label htmlFor='email'>Email</Label>
-          <Input
-            aria-invalid={Boolean(errors.email)}
-            className='border-border bg-background/70 text-foreground'
-            id='email'
-            placeholder='ronaldo@example.com'
-            type='email'
-            {...register("email")}
-          />
-          <InputFeedback variant='error'>{errors.email?.message}</InputFeedback>
-        </div>
+	useEffect(() => {
+		setFocus("email");
+	}, [setFocus]);
 
-        <div className='space-y-2'>
-          <div className='flex items-center justify-between'>
-            <Label htmlFor='password'>Senha</Label>
-            <Link
-              className='font-medium text-primary text-sm hover:underline'
-              to='/forgot-password'
-            >
-              Esqueceu a senha?
-            </Link>
-          </div>
-          <Input
-            aria-invalid={Boolean(errors.password)}
-            className='border-border bg-background/70 text-foreground'
-            id='password'
-            placeholder='***********'
-            type='password'
-            {...register("password")}
-          />
-          <InputFeedback variant='error'>
-            {errors.password?.message}
-          </InputFeedback>
-        </div>
+	return (
+		<div className="relative flex w-full max-w-[335px] flex-col items-center gap-8">
+			<div className="flex flex-col items-center gap-8">
+				<div className="flex w-fit rounded-sm border-gradient bg-linear-(--primary-gradient) p-2">
+					<EmailIcon className="text-2xl text-pink-start" />
+				</div>
+				<div className="flex flex-col items-center gap-2">
+					<h1 className="text-center font-jakarta font-semibol text-xl sm:text-[32px]">
+					  Bem-vindo de volta
+					</h1>
+					<p className="text-center font-sans text-muted-foreground text-xs">
+				    Acesse sua conta. Entre com suas credenciais para gerenciar seus clientes e envios fiscais.
+					</p>
+				</div>
+			</div>
 
-        <Button className='mt-6 w-full' disabled={!canLogin} type='submit'>
-          {isPending ? (
-            <>
-              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-              Entrando...
-            </>
-          ) : (
-            "Entrar"
-          )}
-        </Button>
+			<form
+				className="flex w-full flex-col items-center gap-4"
+				onSubmit={handleSubmit(onSubmit)}
+			>
 
-        <p className='pt-4 text-center text-muted-foreground text-xs'>
-          Ao entrar, você concorda com nossos{" "}
-          <Link className='underline hover:text-foreground' to='/terms'>
-            Termos de Uso
-          </Link>{" "}
-          e{" "}
-          <Link className='underline hover:text-foreground' to='/privacy'>
-            Política de Privacidade
-          </Link>
-        </p>
-      </form>
-    </>
-  )
+				<div className="flex w-full flex-col gap-2">
+					<Label htmlFor="email">Email</Label>
+					<Input
+						aria-invalid={Boolean(errors.email)}
+						id="email"
+						placeholder="ronaldo@example.com"
+						type="email"
+						{...register("email")}
+					/>
+					<InputFeedback variant="error">{errors.email?.message}</InputFeedback>
+				</div>
+
+				<AnimatePresence initial={false}>
+					{shouldShowPasswordFields ? (
+						<motion.div
+							key="password-fields"
+							animate={{ opacity: 1, y: 0, height: "auto" }}
+							className="flex w-full flex-col gap-4 "
+							exit={{ opacity: 0, y: -8, height: 0 }}
+							initial={{ opacity: 0, y: -8, height: 0 }}
+							transition={{ duration: 0.2, ease: "easeOut" }}
+						>
+							<div className="flex w-full flex-col gap-2">
+								<Label htmlFor="password">Senha</Label>
+								<Input
+									aria-invalid={Boolean(errors.password)}
+									id="password"
+									placeholder="***********"
+									type="password"
+									{...register("password")}
+								/>
+								<InputFeedback variant="error">
+									{errors.password?.message}
+								</InputFeedback>
+							</div>
+
+						</motion.div>
+					) : null}
+				</AnimatePresence>
+
+				<Button
+					className="mt-4 w-full py-3 font-medium font-sans text-xs"
+					disabled={!canLogin}
+					type="submit"
+				>
+					{isPending ? (
+						<>
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							Processando...
+						</>
+					) : (
+						"Entrar"
+					)}
+				</Button>
+
+				<p className="font-sans text-muted-foreground text-xs">
+					Não possui acesso?{" "}
+					<Link
+						className="font-bold text-primary hover:underline"
+						to="/sign-up"
+					>
+					  Fazer Cadastro
+					</Link>
+				</p>
+			</form>
+		</div>
+	);
 }
