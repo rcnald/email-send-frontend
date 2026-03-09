@@ -1,8 +1,10 @@
-import { AlertCircleIcon, FileUpIcon, XIcon } from "lucide-react"
-import { AiOutlineLoading3Quarters } from "react-icons/ai"
-import { IoMdCheckmarkCircle } from "react-icons/io"
-import { IoCloseCircleSharp } from "react-icons/io5"
-import { TbZip } from "react-icons/tb"
+import {
+  AlertCircleIcon,
+  FileArchiveIcon,
+  FileUpIcon,
+  Loader2Icon,
+  XIcon,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { env } from "@/env"
 import { type FileItem, useFileUpload } from "@/hooks/use-file-upload"
@@ -11,29 +13,46 @@ import { uploader } from "@/services/uploader"
 import { Badge } from "./ui/badge"
 import { Progress } from "./ui/progress"
 
-const STATUS = (process: number) => {
-  return {
-    uploading: `${process}%`,
-    pending: <AiOutlineLoading3Quarters className='animate-spin' />,
-    completed: (
-      <Badge>
-        <IoMdCheckmarkCircle />
-        Enviado
-      </Badge>
-    ),
-    error: (
-      <Badge variant='destructive'>
-        <IoCloseCircleSharp />
-        Falhou
-      </Badge>
-    ),
+const getExtensionsLabel = (accept: string) => {
+  const extensions = accept
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean)
+
+  if (extensions.length === 0) {
+    return "*"
   }
+
+  return extensions.join(", ")
+}
+
+const getStatusLabel = (file: FileItem) => {
+  if (file.status === "pending") {
+    return (
+      <Badge className='gap-1.5'>
+        <Loader2Icon aria-hidden='true' className='size-3 animate-spin' />
+        Processando
+      </Badge>
+    )
+  }
+
+  if (file.status === "uploading") {
+    return <span className='font-medium text-primary text-xs'>{file.progress}%</span>
+  }
+
+  if (file.status === "completed") {
+    return <Badge>Concluido</Badge>
+  }
+
+  return <Badge variant='destructive'>Falhou</Badge>
 }
 
 export const FileUpload = () => {
   const maxFiles = env.VITE_MAX_FILE_COUNT
   const maxSize = env.VITE_MAX_FILE_SIZE
   const accept = env.VITE_ALLOWED_EXTENSIONS
+
+  const supportedExtensions = getExtensionsLabel(accept)
 
   const [
     { files, isDragging, errors },
@@ -59,64 +78,73 @@ export const FileUpload = () => {
   const hasMoreThanOneFile = files.length > 1
 
   return (
-    <div className='flex w-full flex-col gap-2'>
-      <button
-        className='flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-xl border border-primary border-dashed bg-accent p-4 transition-colors hover:bg-accent/50 has-disabled:pointer-events-none has-[input:focus]:border-ring has-disabled:opacity-50 has-[input:focus]:ring-[3px] has-[input:focus]:ring-ring/50 data-[dragging=true]:bg-accent/50'
+    <div className='space-y-5'>
+      <div
+        className='group flex min-h-[260px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-600 bg-[#080b13] p-6 text-center transition-colors hover:bg-[#0b101c] data-[dragging=true]:border-primary/70 data-[dragging=true]:bg-[#0d1220]'
         data-dragging={isDragging}
-        onClick={openFileDialog}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        tabIndex={-1}
-        type='button'
       >
         <input
           {...getInputProps()}
-          aria-label='Anexar arquivos'
+          aria-label='Selecionar arquivos ZIP para upload'
           className='sr-only'
         />
 
-        <div className='flex flex-col items-center justify-center text-center'>
-          <div
-            aria-hidden='true'
-            className='mb-2 flex size-11 shrink-0 items-center justify-center rounded-full border border-primary bg-accent'
-          >
-            <FileUpIcon className='size-4 text-primary text-opacity-60 ' />
-          </div>
-          <p className='mb-1.5 font-medium text-sm'>Anexar arquivos</p>
-          <p className='mb-2 text-muted-foreground text-xs'>
-            Arraste e solte o arquivo .zip aqui
-          </p>
-          <div className='flex flex-wrap justify-center gap-1 text-muted-foreground/70 text-xs'>
-            <span>No máximo {maxFiles} arquivos</span>
-            <span>∙</span>
-            <span>Até {formatBytes(maxSize)}</span>
-          </div>
-        </div>
-      </button>
+        <span
+          aria-hidden='true'
+          className='mb-5 inline-flex size-14 items-center justify-center rounded-full border border-primary/30 bg-primary/20 text-primary'
+        >
+          <FileUpIcon className='size-6' />
+        </span>
 
-      <div
-        className='flex items-center gap-1 text-destructive text-xs'
-        role='alert'
-      >
-        {hasErrors ? <AlertCircleIcon className='size-3 shrink-0' /> : null}
-        <span>{errors[0]}</span>
+        <h3 className='font-semibold text-2xl text-zinc-100'>
+          Arraste seus arquivos aqui
+        </h3>
+        <p className='mt-3 max-w-sm text-sm text-zinc-400'>
+          Ou clique para navegar no seu computador. Apenas arquivos ZIP sao
+          aceitos.
+        </p>
+
+        <Button className='mt-6' onClick={openFileDialog} type='button'>
+          Selecionar Arquivos
+        </Button>
+
+        <p className='mt-4 text-xs text-zinc-500'>
+          Tamanho maximo: {formatBytes(maxSize)} - Arquivos suportados:{" "}
+          {supportedExtensions}
+        </p>
       </div>
 
-      <div className='space-y-2'>
-        {files.map((file) => (
-          <FileListItem file={file} key={file.id} removeFile={removeFile} />
-        ))}
+      {hasErrors ? (
+        <div
+          className='flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-destructive text-xs'
+          role='alert'
+        >
+          <AlertCircleIcon aria-hidden='true' className='mt-0.5 size-3 shrink-0' />
+          <span>{errors[0]}</span>
+        </div>
+      ) : null}
+
+      <section className='space-y-2'>
+        <h4 className='font-semibold text-xs tracking-wide text-zinc-400 uppercase'>
+          Arquivos em processamento ({files.length})
+        </h4>
+
+        <div className='space-y-2'>
+          {files.map((file) => (
+            <FileListItem file={file} key={file.id} removeFile={removeFile} />
+          ))}
+        </div>
 
         {hasMoreThanOneFile ? (
-          <div>
-            <Button onClick={clearFiles} size='sm' variant='link'>
-              Remover todos os arquivos
-            </Button>
-          </div>
+          <Button onClick={clearFiles} size='sm' type='button' variant='link'>
+            Remover todos os arquivos
+          </Button>
         ) : null}
-      </div>
+      </section>
     </div>
   )
 }
@@ -134,41 +162,46 @@ const FileListItem = ({
     { label: false }
   )
 
-  const status = STATUS(file.progress)[file.status]
-
   const handleRemove = () => {
     removeFile(file.id)
   }
+
   return (
-    <div
-      className='flex items-center justify-between gap-2 rounded-lg border bg-background p-2 pe-3'
-      key={file.id}
-    >
-      <div className='flex w-full items-center gap-3 overflow-hidden'>
-        <div className='flex size-12 shrink-0 items-center justify-center rounded-md bg-primary/20'>
-          <TbZip className='size-6 text-primary' />
+    <article className='rounded-xl border border-zinc-700/70 bg-zinc-900/70 px-3 py-2'>
+      <div className='flex items-center gap-3'>
+        <div className='flex size-10 shrink-0 items-center justify-center rounded-md bg-primary/15'>
+          <FileArchiveIcon aria-hidden='true' className='size-5 text-primary' />
         </div>
-        <div className='flex w-full flex-col py-1'>
-          <p className='flex justify-between truncate font-medium text-[13px]'>
-            <span className='font-mono'>{file.name}</span>
-            <span>{status}</span>
-          </p>
-          <Progress className='mt-1 h-1' value={file.progress} />
-          <p className='text-muted-foreground text-xs'>
+
+        <div className='min-w-0 flex-1'>
+          <div className='mb-1 flex items-center justify-between gap-2'>
+            <p className='truncate font-medium text-[13px] text-zinc-100'>
+              {file.name}
+            </p>
+            {getStatusLabel(file)}
+          </div>
+
+          <Progress
+            className='h-1.5 bg-zinc-800 [&_[data-slot=progress-indicator]]:bg-primary'
+            value={file.progress}
+          />
+
+          <p className='mt-1 text-xs text-zinc-400'>
             {alreadyUploadedFileSize} de {fileSize}
           </p>
         </div>
-      </div>
 
-      <Button
-        aria-label='Remove file'
-        className='-me-2 size-8 text-muted-foreground/80 hover:bg-transparent hover:text-foreground'
-        onClick={handleRemove}
-        size='icon'
-        variant='ghost'
-      >
-        <XIcon aria-hidden='true' className='size-4' />
-      </Button>
-    </div>
+        <Button
+          aria-label='Remover arquivo'
+          className='size-8 text-zinc-400 hover:bg-transparent hover:text-zinc-100'
+          onClick={handleRemove}
+          size='icon'
+          type='button'
+          variant='ghost'
+        >
+          <XIcon aria-hidden='true' className='size-4' />
+        </Button>
+      </div>
+    </article>
   )
 }

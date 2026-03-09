@@ -11,9 +11,10 @@ import {
   type OnChangeFn,
   type RowSelectionState,
   type SortingState,
+  type Table as TableType,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowRightIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon, FunnelIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { fetchClients } from "@/api/fetch-clients"
@@ -106,6 +107,38 @@ const columns: ColumnDef<SelectClientTableItem>[] = [
   },
 ]
 
+const getPaginationItems = (table: TableType<SelectClientTableItem>) => {
+  const pageCount = table.getPageCount()
+  const currentPage = table.getState().pagination.pageIndex + 1
+
+  if (pageCount <= 1) return [1]
+
+  const pages = new Set<number>([1, pageCount, currentPage])
+
+  if (currentPage > 1) {
+    pages.add(currentPage - 1)
+  }
+
+  if (currentPage < pageCount) {
+    pages.add(currentPage + 1)
+  }
+
+  const sortedPages = Array.from(pages).sort((a, b) => a - b)
+  const items: Array<number | string> = []
+
+  for (const page of sortedPages) {
+    const previous = items.at(-1)
+
+    if (typeof previous === "number" && page - previous > 1) {
+      items.push(`ellipsis-${previous}-${page}`)
+    }
+
+    items.push(page)
+  }
+
+  return items
+}
+
 export const SelectClientStep = () => {
   const { addClient, clearClient } = useClientStore((state) => state.actions)
   const client = useClientStore((state) => state.client)
@@ -177,6 +210,9 @@ export const SelectClientStep = () => {
   })
 
   const isRowSelected = table.getSelectedRowModel().rows.length > 0
+  const totalClientsCount = clientsData?.clients.length ?? 0
+  const currentPageRowsCount = table.getRowModel().rows.length
+  const paginationItems = getPaginationItems(table)
 
   const navigate = useNavigate()
   const hasSelectedClient = useClientStore((state) => Boolean(state.client))
@@ -189,7 +225,7 @@ export const SelectClientStep = () => {
   }
 
   const handleNextStep = () => {
-    if (hasFilesToProceed) {
+    if (hasFilesToProceed && hasSelectedClient) {
       navigate("/resume")
     }
   }
@@ -201,42 +237,118 @@ export const SelectClientStep = () => {
   }, [hasFilesToProceed, navigate])
 
   return (
-    <div className='grid grid-cols-1 gap-5 self-start'>
-      <div>
+    <div className='w-full self-start space-y-6'>
+      <section className='space-y-2 border-zinc-700/70 border-t pt-5'>
+        <h1 className='font-semibold text-3xl tracking-tight text-white'>
+          Selecionar Clientes
+        </h1>
+        <p className='text-sm text-zinc-400'>
+          Escolha os destinatarios para o envio do lote de documentos fiscais.
+        </p>
+      </section>
+
+      <section className='space-y-5'>
         <div className='flex flex-wrap items-center justify-between gap-3'>
-          <div className='flex items-center gap-3'>
+          <div className='flex flex-1 items-center gap-2'>
             <ClientsTableFilters
-              className='relative'
+              className='relative min-w-[280px] flex-1 md:max-w-[420px]'
               filterValue={table.getColumn("name")?.getFilterValue() as string}
+              placeholder='Filtrar por nome ou CNPJ...'
               setFilterValue={table.getColumn("name")?.setFilterValue}
             />
+
+            <Button
+              aria-label='Filtros avancados'
+              size='icon'
+              type='button'
+              variant='outline'
+            >
+              <FunnelIcon aria-hidden='true' className='size-4' />
+            </Button>
           </div>
+
           <div className='flex items-center gap-3'>
             {isRowSelected ? (
               <ClientsTableDeleteButton onDelete={() => null} />
             ) : null}
-
             <ClientsTableAddButton />
           </div>
         </div>
 
-        <div className='overflow-hidden rounded-md border bg-background'>
+        <div className='overflow-hidden rounded-xl border border-zinc-700/80 bg-zinc-900/70'>
           <SelectClientsTable table={table} />
         </div>
-      </div>
 
-      <div className='flex w-full flex-col gap-3 place-self-end md:flex-row lg:w-fit'>
+        <div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between'>
+          <p className='text-sm text-zinc-400'>
+            Mostrando {currentPageRowsCount} de {totalClientsCount} clientes
+            cadastrados
+          </p>
+
+          <div className='flex items-center gap-2 self-end md:self-auto'>
+            <Button
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
+              size='sm'
+              type='button'
+              variant='secondary'
+            >
+              Anterior
+            </Button>
+
+            {paginationItems.map((item) => {
+              if (typeof item === "string") {
+                return (
+                  <span className='px-1 text-sm text-zinc-500' key={item}>
+                    ...
+                  </span>
+                )
+              }
+
+              const isActivePage = item === table.getState().pagination.pageIndex + 1
+
+              return (
+                <Button
+                  className='h-8 min-w-8 px-2'
+                  key={item}
+                  onClick={() => table.setPageIndex(item - 1)}
+                  size='sm'
+                  type='button'
+                  variant={isActivePage ? "default" : "ghost"}
+                >
+                  {item}
+                </Button>
+              )
+            })}
+
+            <Button
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.nextPage()}
+              size='sm'
+              type='button'
+              variant='secondary'
+            >
+              Proximo
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <div className='flex w-full flex-col gap-3 place-self-end md:flex-row lg:w-fit lg:ml-auto'>
         <Button
           className='w-full lg:w-fit'
           onClick={handleGoBack}
-          variant={"secondary"}
+          type='button'
+          variant='secondary'
         >
+          <ArrowLeftIcon aria-hidden='true' className='opacity-80' size={16} />
           Voltar
         </Button>
         <Button
           className='group w-full lg:w-fit'
           disabled={!hasSelectedClient}
           onClick={handleNextStep}
+          type='button'
         >
           Continuar
           <ArrowRightIcon

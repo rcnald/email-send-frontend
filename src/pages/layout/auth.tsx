@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { getProfile } from "@/api/get-profile";
 import signBackground from "@/assets/sign-background.png";
 import signBlur from "@/assets/sign-blur.svg";
@@ -8,32 +7,31 @@ import signFade from "@/assets/sign-fade.svg";
 import signUpBackground from "@/assets/sign-up-background.png";
 import signInBackground from "@/assets/sign-in-background.png";
 import { LightingIcon } from "@/components/icons/lighting";
-import { api, setupResponseInterceptor } from "@/lib/axios";
 
 export const AuthLayout = () => {
-	const navigate = useNavigate();
-
 	const location = useLocation();
 
 	const isLoginPage = location.pathname === "/sign-in";
 	const isRegisterPage = location.pathname === "/sign-up";
 	const isRootPath = location.pathname === "/";
 
-	const { isLoading, isError } = useQuery({
+	const { isLoading, isError, isSuccess } = useQuery({
 	  queryKey: ["me"],
 	  queryFn: getProfile,
 	  retry: false,
+	  enabled: isRootPath,
 	})
 
-	useEffect(() => {
-	  const interceptorId = setupResponseInterceptor(api, navigate)
+	if (isRootPath && isLoading) return null
 
-	  return () => api.interceptors.response.eject(interceptorId)
-	}, [navigate])
+	if (isRootPath) {
+	  if (isError) {
+	    return <Navigate replace to='/sign-in' />
+	  }
+	  return <Navigate replace to='/upload' />
+	}
 
-	if (isLoading) return null
-
-	if ((!isError && isLoginPage) || isRootPath) {
+	if (isLoginPage && isSuccess) {
 	  return <Navigate replace to='/upload' />
 	}
 

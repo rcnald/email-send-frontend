@@ -40,19 +40,35 @@ export const setupResponseInterceptor = (
       if (isAxiosError<ApiErrorData>(error)) {
         const status = error.response?.status
         const code = error.response?.data.code
+        const originalRequest = error.config as (typeof error.config & {
+          _retry?: boolean
+        }) | null
+        const requestUrl = originalRequest?.url ?? ""
+        const alreadyRetried = originalRequest?._retry === true
+        const isRefreshRequest = requestUrl.includes("/auth/token/refresh")
+        const isLogoutRequest = requestUrl.includes("/auth/logout")
+        const shouldTryRefresh =
+          status === 401 &&
+          code === "UNAUTHORIZED" &&
+          Boolean(originalRequest) &&
+          !alreadyRetried &&
+          !isRefreshRequest &&
+          !isLogoutRequest
 
-        if (status === 401 && code === "UNAUTHORIZED") {
+        if (shouldTryRefresh && originalRequest) {
+          originalRequest._retry = true
+
           try {
-            await api.patch("/auth/token/refresh")
-
-            if (error.config) {
-              return api.request(error.config)
-            }
-
-            return Promise.reject(error)
+            await apiInstance.patch("/auth/token/refresh")
+            return apiInstance.request(originalRequest)
           } catch {
             navigate("/sign-in", { replace: true })
+            return Promise.reject(error)
           }
+        }
+
+        if (status === 401 && code === "UNAUTHORIZED" && isRefreshRequest) {
+          navigate("/sign-in", { replace: true })
         }
       }
       return Promise.reject(error)

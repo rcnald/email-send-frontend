@@ -6,11 +6,13 @@ import { Input } from "../../../components/ui/input"
 export type ClientsTableFiltersProps = {
   filterValue?: string
   setFilterValue?: (value: string) => void
+  placeholder?: string
 } & ComponentProps<"div">
 
 export const ClientsTableFilters = ({
   filterValue = "",
   setFilterValue,
+  placeholder = "Filtrar por nome",
   ...props
 }: ClientsTableFiltersProps) => {
   const id = useId()
@@ -25,7 +27,7 @@ export const ClientsTableFilters = ({
         className={cn("peer min-w-60 ps-9", hasFilterValue && "pe-9")}
         id={`${id}-input`}
         onChange={(e) => setFilterValue?.(e.target.value)}
-        placeholder='Filtrar por nome'
+        placeholder={placeholder}
         ref={inputRef}
         type='text'
         value={filterValue}
