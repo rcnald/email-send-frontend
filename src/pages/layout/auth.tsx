@@ -1,39 +1,48 @@
 import { useQuery } from "@tanstack/react-query";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { getProfile } from "@/api/get-profile";
 import signBackground from "@/assets/sign-background.png";
 import signBlur from "@/assets/sign-blur.svg";
 import signFade from "@/assets/sign-fade.svg";
-import signUpBackground from "@/assets/sign-up-background.png";
 import signInBackground from "@/assets/sign-in-background.png";
+import signUpBackground from "@/assets/sign-up-background.png";
 import { LightingIcon } from "@/components/icons/lighting";
+import { api, setupResponseInterceptor } from "@/lib/axios";
 
 export const AuthLayout = () => {
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	const isLoginPage = location.pathname === "/sign-in";
 	const isRegisterPage = location.pathname === "/sign-up";
 	const isRootPath = location.pathname === "/";
 
 	const { isLoading, isError, isSuccess } = useQuery({
-	  queryKey: ["me"],
-	  queryFn: getProfile,
-	  retry: false,
-	  enabled: isRootPath,
-	})
+		queryKey: ["me"],
+		queryFn: getProfile,
+		retry: false,
+		// enabled: isRootPath,
+	});
 
-	if (isRootPath && isLoading) return null
+	if (isRootPath && isLoading) return null;
 
 	if (isRootPath) {
-	  if (isError) {
-	    return <Navigate replace to='/sign-in' />
-	  }
-	  return <Navigate replace to='/upload' />
+		if (isError) {
+			return <Navigate replace to="/sign-in" />;
+		}
+		return <Navigate replace to="/upload" />;
 	}
 
 	if (isLoginPage && isSuccess) {
-	  return <Navigate replace to='/upload' />
+		return <Navigate replace to="/upload" />;
 	}
+
+	useEffect(() => {
+		const interceptorId = setupResponseInterceptor(api, navigate);
+
+		return () => api.interceptors.response.eject(interceptorId);
+	}, [navigate]);
 
 	return (
 		<div className="relative flex min-h-screen border-gradient-inner text-foreground p-4 border-gradient border-gradient-tertiary">

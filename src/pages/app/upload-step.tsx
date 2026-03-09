@@ -1,84 +1,90 @@
-import { ArrowRightIcon, CircleDotIcon } from "lucide-react"
-import { useNavigate } from "react-router-dom"
-import { FileUpload } from "@/components/file-upload"
-import { Button } from "@/components/ui/button"
-import { useFileStore } from "@/store/file-store"
+import { ArrowRightIcon, CircleDotIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { FileUpload } from "@/components/file-upload";
+import { Button } from "@/components/ui/button";
+import { useFileStore } from "@/store/file-store";
 
 const instructions = [
-  "Certifique-se de que os arquivos XML estejam na raiz do arquivo ZIP.",
-  "Evite caracteres especiais ou espacos nos nomes dos arquivos para manter a integridade.",
-  "Voce podera selecionar os destinatarios e o periodo fiscal na proxima etapa.",
-] as const
+	"Certifique-se de que os arquivos XML estejam na raiz do arquivo ZIP.",
+	"Evite caracteres especiais ou espacos nos nomes dos arquivos para manter a integridade.",
+	"Voce podera selecionar os destinatarios e o periodo fiscal na proxima etapa.",
+] as const;
 
 export const UploadStep = () => {
-  const navigate = useNavigate()
-  const hasFilesToProceed = useFileStore(
-    (state) => state.uploadedFiles.length > 0
-  )
+	const navigate = useNavigate();
+	const hasFilesToProceed = useFileStore(
+		(state) => state.uploadedFiles.length > 0,
+	);
 
-  const handleNextStep = () => {
-    if (hasFilesToProceed) {
-      navigate("/select-client")
-    }
-  }
+	const handleNextStep = () => {
+		if (hasFilesToProceed) {
+			navigate("/select-client");
+		}
+	};
 
-  return (
-    <div className='w-full self-start'>
-      <section className='mb-6 space-y-2'>
-        <h1 className='font-semibold text-3xl tracking-tight text-white'>
-          Upload de Documentos
-        </h1>
-        <p className='max-w-3xl text-sm text-zinc-400'>
-          Selecione ou arraste os arquivos ZIP contendo os documentos fiscais
-          para processamento.
-        </p>
-      </section>
+	return (
+		<div className="w-full self-start">
+			<section className="mb-6 space-y-2">
+				<h1 className="font-semibold text-3xl tracking-tight text-foreground">
+					Upload de Documentos
+				</h1>
+				<p className="max-w-3xl text-muted-foreground text-sm">
+					Selecione ou arraste os arquivos ZIP contendo os documentos fiscais
+					para processamento.
+				</p>
+			</section>
 
-      <div className='grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px]'>
-        <div className='space-y-5'>
-          <FileUpload />
-        </div>
+			<div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+				<div className="space-y-5">
+					<FileUpload />
+				</div>
 
-        <aside className='space-y-4'>
-          <div className='rounded-2xl border border-zinc-700/60 bg-zinc-900/80 p-5'>
-            <h2 className='mb-4 flex items-center gap-2 font-semibold text-sm text-zinc-100'>
-              <CircleDotIcon aria-hidden='true' className='size-4 text-primary' />
-              Orientacoes de Envio
-            </h2>
+				<aside className="space-y-4">
+					<div className="rounded-2xl border border-border bg-card p-5">
+						<h2 className="mb-4 flex items-center gap-2 font-semibold text-card-foreground text-sm">
+							<CircleDotIcon
+								aria-hidden="true"
+								className="size-4 text-primary"
+							/>
+							Orientacoes de Envio
+						</h2>
 
-            <ul className='space-y-3 text-sm text-zinc-300'>
-              {instructions.map((instruction) => (
-                <li className='flex gap-2.5' key={instruction}>
-                  <span aria-hidden='true' className='mt-2 size-1.5 rounded-full bg-primary' />
-                  <span>{instruction}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+						<ul className="space-y-3 text-muted-foreground text-sm">
+							{instructions.map((instruction) => (
+								<li className="flex gap-2.5" key={instruction}>
+									<span
+										aria-hidden="true"
+										className="mt-2 size-1.5 rounded-full bg-primary"
+									/>
+									<span>{instruction}</span>
+								</li>
+							))}
+						</ul>
+					</div>
 
-          <div className='rounded-2xl border border-primary/25 bg-primary/10 p-5'>
-            <p className='mb-4 text-sm text-zinc-200'>
-              Pronto para prosseguir? Todos os arquivos listados serao vinculados
-              aos clientes que voce escolher.
-            </p>
+					<div className="rounded-2xl border border-primary/25 bg-primary/10 p-5">
+						<p className="mb-4 text-sm text-foreground">
+							Pronto para prosseguir? Todos os arquivos listados serao
+							vinculados aos clientes que voce escolher.
+						</p>
 
-            <Button
-              className='group w-full justify-between'
-              disabled={!hasFilesToProceed}
-              onClick={handleNextStep}
-              type='button'
-              variant='default'
-            >
-              Proxima Etapa: Clientes
-              <ArrowRightIcon
-                aria-hidden='true'
-                className='opacity-80 transition-transform group-hover:translate-x-0.5'
-                size={16}
-              />
-            </Button>
-          </div>
-        </aside>
-      </div>
-    </div>
-  )
-}
+						<Button
+							className="group w-full justify-between"
+							disabled={!hasFilesToProceed}
+							onClick={handleNextStep}
+							type="button"
+							variant="default"
+						>
+							Proxima Etapa: Clientes
+							<ArrowRightIcon
+								aria-hidden="true"
+								className="opacity-80 transition-transform group-hover:translate-x-0.5"
+								size={16}
+							/>
+						</Button>
+					</div>
+				</aside>
+			</div>
+		</div>
+	);
+};

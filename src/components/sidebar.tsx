@@ -1,5 +1,5 @@
-import Cookies from "js-cookie";
 import { useMutation } from "@tanstack/react-query";
+import Cookies from "js-cookie";
 import { ChevronRight, LogOut, Send, Upload, User } from "lucide-react";
 import type { ComponentProps, ElementType } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -83,13 +83,13 @@ export function Sidebar({ className, ...props }: SidebarProps) {
 	return (
 		<aside
 			className={cn(
-				"sticky top-0 flex h-screen w-full max-w-[272px] shrink-0 flex-col border-white/10 border-r bg-[#171c28] px-4 py-6 text-[#c7ceda]",
+				"sticky top-0 flex h-screen w-full max-w-[272px] shrink-0 flex-col border-sidebar-border border-r bg-sidebar px-4 py-6 text-sidebar-foreground",
 				className,
 			)}
 			{...props}
 		>
-			<div className="border-white/20 border-t pt-5">
-				<p className="mb-3 font-semibold text-[11px] tracking-wide text-white/60 uppercase">
+			<div className="border-sidebar-border/80 border-t pt-5">
+				<p className="mb-3 font-semibold text-[11px] tracking-wide text-sidebar-foreground/60 uppercase">
 					Workflow
 				</p>
 
@@ -101,7 +101,7 @@ export function Sidebar({ className, ...props }: SidebarProps) {
 						if (!item.canNavigate) {
 							return (
 								<button
-									className="flex h-11 items-center gap-3 rounded-lg px-3 font-medium text-[15px] text-white/45"
+									className="flex h-11 items-center gap-3 rounded-lg px-3 font-medium text-[15px] text-sidebar-foreground/45"
 									disabled
 									key={item.pathname}
 									type="button"
@@ -118,8 +118,8 @@ export function Sidebar({ className, ...props }: SidebarProps) {
 								className={cn(
 									"group flex h-11 items-center justify-between rounded-lg px-3 font-medium text-[15px] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70",
 									isActive
-										? "bg-[#401329] text-primary"
-										: "text-white/85 hover:bg-white/5 hover:text-white",
+										? "bg-sidebar-accent text-sidebar-accent-foreground"
+										: "text-sidebar-foreground/85 hover:bg-sidebar-accent/45 hover:text-sidebar-foreground",
 								)}
 								key={item.pathname}
 								to={item.pathname}
@@ -133,8 +133,8 @@ export function Sidebar({ className, ...props }: SidebarProps) {
 									className={cn(
 										"transition-transform duration-200",
 										isActive
-											? "text-primary"
-											: "translate-x-0.5 text-white/45 group-hover:translate-x-1 group-hover:text-white/70",
+											? "text-sidebar-primary"
+											: "translate-x-0.5 text-sidebar-foreground/45 group-hover:translate-x-1 group-hover:text-sidebar-foreground/70",
 									)}
 									size={16}
 								/>
@@ -144,11 +144,11 @@ export function Sidebar({ className, ...props }: SidebarProps) {
 				</nav>
 			</div>
 
-			<div className="mt-auto border-white/10 border-t pt-4">
+			<div className="mt-auto border-sidebar-border border-t pt-4">
 				<AlertDialog>
 					<AlertDialogTrigger asChild>
 						<Button
-							className="w-full justify-start gap-3 px-3 text-[#ff375f] hover:bg-[#ff375f]/10 hover:text-[#ff375f]"
+							className="w-full justify-start gap-3 px-3 text-sidebar-primary hover:bg-sidebar-accent hover:text-sidebar-primary"
 							type="button"
 							variant="ghost"
 						>
@@ -168,7 +168,10 @@ export function Sidebar({ className, ...props }: SidebarProps) {
 						<AlertDialogFooter>
 							<AlertDialogCancel>Cancel</AlertDialogCancel>
 							<Button asChild variant="destructive">
-								<AlertDialogAction disabled={isLoggingOut} onClick={handleLogout}>
+								<AlertDialogAction
+									disabled={isLoggingOut}
+									onClick={handleLogout}
+								>
 									{isLoggingOut ? "Logging out..." : "Logout"}
 								</AlertDialogAction>
 							</Button>

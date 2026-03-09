@@ -25,7 +25,7 @@ export const AppLayout = () => {
 	if (isError || !data) return <Navigate replace to="/sign-in" />;
 
 	return (
-		<div className="min-h-screen bg-[#121620]">
+		<div className="min-h-screen bg-background">
 			<div className="mx-auto flex min-h-screen ">
 				<Sidebar />
 				<main className="flex-1 overflow-x-hidden w-full  max-w-[1440px] p-4 sm:p-8 lg:p-10">
