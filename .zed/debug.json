@@ -1,0 +1,16 @@
+[
+  {
+    "label": "Vite React (Chrome)",
+    "adapter": "JavaScript",
+    "request": "launch",
+    "type": "chrome",
+    "url": "http://localhost:5173/",
+    "urlFilter": "http://localhost:5173/*",
+    "webRoot": "$ZED_WORKTREE_ROOT",
+    "runtimeExecutable": "stable",
+    "console": "integratedTerminal",
+    "skipFiles": [
+      "**/node_modules/**"
+    ]
+  }
+]
