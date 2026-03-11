@@ -17,7 +17,9 @@ export const AppLayout = () => {
 	useEffect(() => {
 		const interceptorId = setupResponseInterceptor(api, navigate);
 
-		return () => api.interceptors.response.eject(interceptorId);
+		return () => {
+			api.interceptors.response.eject(interceptorId);
+		};
 	}, [navigate]);
 
 	if (isLoading) return null;

@@ -21,11 +21,11 @@ export const AuthLayout = () => {
 	const { isLoading, isError, isSuccess } = useQuery({
 		queryKey: ["me"],
 		queryFn: getProfile,
+		enabled: isRootPath,
 		retry: false,
-		// enabled: isRootPath,
 	});
 
-	if (isRootPath && isLoading) return null;
+	if (isRootPath &&  isLoading) return null;
 
 	if (isRootPath) {
 		if (isError) {
@@ -41,7 +41,9 @@ export const AuthLayout = () => {
 	useEffect(() => {
 		const interceptorId = setupResponseInterceptor(api, navigate);
 
-		return () => api.interceptors.response.eject(interceptorId);
+		return () => {
+			api.interceptors.response.eject(interceptorId);
+		};
 	}, [navigate]);
 
 	return (
