@@ -328,8 +328,7 @@ export const ResumeStep = () => {
 								className="mt-0.5 size-3.5 text-primary"
 							/>
 							Ao clicar em Enviar, os documentos serao transmitidos via
-							protocolo TLS 1.3 e arquivados por 5 anos conforme a legislacao
-							vigente.
+							protocolo TLS 1.3 e arquivados por ate 3 dias.
 						</p>
 					</article>
 				</aside>

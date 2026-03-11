@@ -85,6 +85,7 @@ export const FileUpload = () => {
 				className="group flex min-h-[260px] w-full flex-col items-center justify-center rounded-2xl border border-border border-dashed bg-card p-6 text-center transition-colors hover:bg-muted/40 data-[dragging=true]:border-primary/70 data-[dragging=true]:bg-accent/20"
 				data-dragging={isDragging}
 				onDragEnter={handleDragEnter}
+				onClick={openFileDialog}
 				onDragLeave={handleDragLeave}
 				onDragOver={handleDragOver}
 				onDrop={handleDrop}

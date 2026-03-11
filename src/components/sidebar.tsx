@@ -118,7 +118,7 @@ export function Sidebar({ className, ...props }: SidebarProps) {
 								className={cn(
 									"group flex h-11 items-center justify-between rounded-lg px-3 font-medium text-[15px] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70",
 									isActive
-										? "bg-sidebar-accent text-sidebar-accent-foreground"
+										? "bg-sidebar-accent text-sidebar-primary"
 										: "text-sidebar-foreground/85 hover:bg-sidebar-accent/45 hover:text-sidebar-foreground",
 								)}
 								key={item.pathname}
@@ -153,26 +153,26 @@ export function Sidebar({ className, ...props }: SidebarProps) {
 							variant="ghost"
 						>
 							<LogOut aria-hidden="true" size={16} />
-							Logout
+							Sair
 						</Button>
 					</AlertDialogTrigger>
 					<AlertDialogContent>
 						<AlertDialogHeader>
 							<AlertDialogTitle>
-								Are you sure you want to logout?
+								Tem certeza de que deseja sair?
 							</AlertDialogTitle>
 							<AlertDialogDescription>
-								You will need to sign in again to continue.
+								Você precisará entrar novamente para continuar.
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>
-							<AlertDialogCancel>Cancel</AlertDialogCancel>
+							<AlertDialogCancel>Cancelar</AlertDialogCancel>
 							<Button asChild variant="destructive">
 								<AlertDialogAction
 									disabled={isLoggingOut}
 									onClick={handleLogout}
 								>
-									{isLoggingOut ? "Logging out..." : "Logout"}
+									{isLoggingOut ? "Saindo..." : "Sair"}
 								</AlertDialogAction>
 							</Button>
 						</AlertDialogFooter>

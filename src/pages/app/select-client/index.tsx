@@ -154,7 +154,7 @@ export const SelectClientStep = () => {
 		},
 	]);
 
-	const { data: clientsData } = useQuery({
+	const { data: clientsData, isPending } = useQuery({
 		queryKey: ["clients"],
 		queryFn: fetchClients,
 	});
@@ -256,15 +256,6 @@ export const SelectClientStep = () => {
 							placeholder="Filtrar por nome ou CNPJ..."
 							setFilterValue={table.getColumn("name")?.setFilterValue}
 						/>
-
-						<Button
-							aria-label="Filtros avancados"
-							size="icon"
-							type="button"
-							variant="outline"
-						>
-							<FunnelIcon aria-hidden="true" className="size-4" />
-						</Button>
 					</div>
 
 					<div className="flex items-center gap-3">
@@ -276,7 +267,7 @@ export const SelectClientStep = () => {
 				</div>
 
 				<div className="overflow-hidden rounded-xl border border-border bg-card">
-					<SelectClientsTable table={table} />
+					<SelectClientsTable isPending={isPending} table={table} />
 				</div>
 
 				<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

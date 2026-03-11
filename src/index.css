@@ -307,15 +307,12 @@
   }
 }
 
-@layer utilities {
+/* Rounded gradient 1px border via masked pseudo-element */
+@utility border-gradient {
+  position: relative;
+  --border-gradient: var(--secondary-gradient);
 
-  /* Rounded gradient 1px border via masked pseudo-element */
-  .border-gradient {
-    position: relative;
-    --border-gradient: var(--secondary-gradient);
-  }
-
-  .border-gradient::before {
+  &::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -330,30 +327,32 @@
     pointer-events: none;
     z-index: 0;
   }
+}
 
-  .border-gradient-primary {
-    --border-gradient: var(--primary-gradient);
-  }
+@utility border-gradient-primary {
+  --border-gradient: var(--primary-gradient);
+}
 
-  .border-gradient-secondary {
-    --border-gradient: var(--secondary-gradient);
-  }
+@utility border-gradient-secondary {
+  --border-gradient: var(--secondary-gradient);
+}
 
-  .border-gradient-tertiary {
-    --border-gradient: var(--tertiary-gradient);
-  }
+@utility border-gradient-tertiary {
+  --border-gradient: var(--tertiary-gradient);
+}
 
-  .border-gradient-transparent {
-    --border-gradient: var(--transparent-gradient);
-  }
+@utility border-gradient-transparent {
+  --border-gradient: var(--transparent-gradient);
 
-  .border-gradient-transparent::before {
+  &::before {
     inset: auto !important;
     height: 100% !important;
     right: 0 !important;
   }
+}
 
-  .border-gradient-inner::before {
+@utility border-gradient-inner {
+  &::before {
     padding: 1px;
     margin: 16px;
   }

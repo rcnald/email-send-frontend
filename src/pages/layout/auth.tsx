@@ -25,7 +25,7 @@ export const AuthLayout = () => {
 		retry: false,
 	});
 
-	if (isRootPath &&  isLoading) return null;
+	if (isRootPath && isLoading) return null;
 
 	if (isRootPath) {
 		if (isError) {
@@ -47,7 +47,7 @@ export const AuthLayout = () => {
 	}, [navigate]);
 
 	return (
-		<div className="relative flex min-h-screen border-gradient-inner text-foreground p-4 border-gradient border-gradient-tertiary">
+		<div className="relative flex min-h-screen border-gradient-inner text-foreground md:p-4 md:border-gradient md:border-gradient-tertiary">
 			<img className="absolute top-0 left-0 h-full" src={signFade} />
 			<img className="absolute right-0 top-0 h-full" src={signBlur} />
 
