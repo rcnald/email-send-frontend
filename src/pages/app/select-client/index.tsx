@@ -14,7 +14,7 @@ import {
 	type Table as TableType,
 	useReactTable,
 } from "@tanstack/react-table";
-import { ArrowLeftIcon, ArrowRightIcon, FunnelIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchClients } from "@/api/fetch-clients";

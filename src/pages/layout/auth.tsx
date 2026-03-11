@@ -25,6 +25,14 @@ export const AuthLayout = () => {
 		retry: false,
 	});
 
+	useEffect(() => {
+		const interceptorId = setupResponseInterceptor(api, navigate);
+
+		return () => {
+			api.interceptors.response.eject(interceptorId);
+		};
+	}, [navigate]);
+
 	if (isRootPath && isLoading) return null;
 
 	if (isRootPath) {
@@ -37,14 +45,6 @@ export const AuthLayout = () => {
 	if (isLoginPage && isSuccess) {
 		return <Navigate replace to="/upload" />;
 	}
-
-	useEffect(() => {
-		const interceptorId = setupResponseInterceptor(api, navigate);
-
-		return () => {
-			api.interceptors.response.eject(interceptorId);
-		};
-	}, [navigate]);
 
 	return (
 		<div className="relative flex min-h-screen border-gradient-inner text-foreground md:p-4 md:border-gradient md:border-gradient-tertiary">

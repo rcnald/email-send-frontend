@@ -116,8 +116,8 @@ export const FileUpload = () => {
 				</Button>
 
 				<p className="mt-4 text-muted-foreground/80 text-xs">
-					Tamanho maximo: {formatBytes(maxSize)} - Arquivos suportados:{" "}
-					{supportedExtensions}
+					Maximo de {maxFiles} arquivos no total - Tamanho maximo:{" "}
+					{formatBytes(maxSize)} - Arquivos suportados: {supportedExtensions}
 				</p>
 			</div>
 

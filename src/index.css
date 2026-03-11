@@ -305,6 +305,37 @@
     @apply bg-background text-foreground;
     /* previous-token: bg-white, updated to use background token */
   }
+
+  input:-moz-autofill,
+  input:-moz-autofill:hover,
+  input:-moz-autofill:focus,
+  textarea:-moz-autofill,
+  textarea:-moz-autofill:hover,
+  textarea:-moz-autofill:focus,
+  select:-moz-autofill,
+  select:-moz-autofill:hover,
+  select:-moz-autofill:focus {
+    filter: none !important;
+    color: var(--foreground) !important;
+    caret-color: var(--foreground) !important;
+    box-shadow: inset 0 0 0 1000px var(--input) !important;
+  }
+
+  input[data-com-onepassword-filled],
+  input[data-com-onepassword-filled]:hover,
+  input[data-com-onepassword-filled]:focus,
+  textarea[data-com-onepassword-filled],
+  textarea[data-com-onepassword-filled]:hover,
+  textarea[data-com-onepassword-filled]:focus {
+    filter: none !important;
+    color: var(--foreground) !important;
+    -webkit-text-fill-color: var(--foreground) !important;
+    caret-color: var(--foreground) !important;
+    background-color: var(--input) !important;
+    background-image: none !important;
+    -webkit-box-shadow: inset 0 0 0 1000px var(--input) !important;
+    box-shadow: inset 0 0 0 1000px var(--input) !important;
+  }
 }
 
 /* Rounded gradient 1px border via masked pseudo-element */
