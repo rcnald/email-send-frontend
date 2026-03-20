@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/nursery/noUnknownAtRule: <tailwind rules> */
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -59,9 +58,11 @@
 }
 
 :root {
-  --radial-pink: radial-gradient(circle,
-      rgba(242, 204, 212, 0) 0%,
-      rgba(242, 204, 212, 1) 100%);
+  --radial-pink: radial-gradient(
+    circle,
+    rgba(242, 204, 212, 0) 0%,
+    rgba(242, 204, 212, 1) 100%
+  );
   --radius: 0.75rem;
   /* previous-token: 0.625rem, updated to 12px from Figma */
   --background: oklch(0.992 0.006 341.84);
@@ -148,23 +149,19 @@
   --badge-gradient-end: oklch(0.5 0.15 18.57);
   /* new token: light theme badge gradient end */
 
-  --primary-gradient: 180deg,
-    var(--gradient-red-start) 0%,
-    var(--gradient-red-end) 100%;
+  --primary-gradient:
+    180deg, var(--gradient-red-start) 0%, var(--gradient-red-end) 100%;
 
-  --secondary-gradient: 90deg,
-    var(--gradient-pink-start) 0%,
-    var(--gradient-red-start) 100%;
+  --secondary-gradient:
+    90deg, var(--gradient-pink-start) 0%, var(--gradient-red-start) 100%;
 
-  --tertiary-gradient: 237deg,
-    var(--gradient-pink-end) -45%,
-    var(--gradient-gray-start) 52%,
+  --tertiary-gradient:
+    237deg, var(--gradient-pink-end) -45%, var(--gradient-gray-start) 52%,
     var(--gradient-gray-end) 145%;
 
-  --transparent-gradient: 0deg,
-    transparent 10%,
-    var(--gradient-red-start) 50%,
-    transparent 90%;
+  --transparent-gradient:
+    0deg, transparent 10%, var(--gradient-red-start) 50%, transparent 90%;
+  --auth-side-bg-gradient: -90deg, #fef5f800 1%, #75222a 44%, #3e1216 100%;
 
   --badge-shadow: inset 0px 2px 1px 0px rgba(0, 0, 0, 0.25);
   /* new token: light badge inset shadow */
@@ -173,13 +170,21 @@
   /* new token: light input shadow */
   --form-shadow: -8px 8px 16px 0px rgba(172, 22, 42, 0.25);
   /* new token: light form shadow */
-  --button-shadow: -8px 8px 12px 0px rgba(172, 22, 42, 0.1), 8px -8px 16px 0px rgba(255, 255, 255, 0.25);
+  --button-shadow:
+    -8px 8px 12px 0px rgba(172, 22, 42, 0.1),
+    8px -8px 16px 0px rgba(255, 255, 255, 0.25);
   /* new token: light button shadow */
 
   /* Font family variables for Tailwind tokens */
-  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-plus-jakarta-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-roboto-mono: "Roboto Mono", uiü-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-inter:
+    "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-plus-jakarta-sans:
+    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-roboto-mono:
+    "Roboto Mono", uiü-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
 
 .dark {
@@ -265,36 +270,31 @@
   --gradient-red-end: oklch(0.426 0.170971 19.4963);
   /* new token: #960025 for button gradient end */
 
-  --primary-gradient: 0deg,
-    var(--gradient-pink-light) -35%,
-    var(--gradient-red-end) 9%,
-    var(--gradient-red-start) 50%,
-    var(--gradient-red-end) 89%,
+  --primary-gradient:
+    0deg, var(--gradient-pink-light) -35%, var(--gradient-red-end) 9%,
+    var(--gradient-red-start) 50%, var(--gradient-red-end) 89%,
     var(--gradient-pink-light) 15%;
 
-  --secondary-gradient: 90deg,
-    var(--gradient-pink-start) 0%,
-    var(--gradient-red-start) 100%;
+  --secondary-gradient:
+    90deg, var(--gradient-pink-start) 0%, var(--gradient-red-start) 100%;
 
-  --tertiary-gradient: 237deg,
-    var(--gradient-pink-end) -45%,
-    var(--gradient-gray-start) 52%,
+  --tertiary-gradient:
+    237deg, var(--gradient-pink-end) -45%, var(--gradient-gray-start) 52%,
     var(--gradient-gray-end) 145%;
 
-  --transparent-gradient: 0deg,
-    transparent 10%,
-    var(--gradient-red-start) 50%,
-    transparent 90%;
+  --transparent-gradient:
+    0deg, transparent 10%, var(--gradient-red-start) 50%, transparent 90%;
+  --auth-side-bg-gradient: 180deg, #fef5f800 1%, #75222a 44%, #3e1216 100%;
 
   --form-shadow: -8px 8px 12px 0px rgba(0, 0, 0, 0.25);
   /* new token: form container shadow */
-  --button-shadow: -8px 8px 12px 0px rgba(0, 0, 0, 0.25), 8px -8px 16px 0px rgba(142, 51, 51, 0.25);
+  --button-shadow:
+    -8px 8px 12px 0px rgba(0, 0, 0, 0.25),
+    8px -8px 16px 0px rgba(142, 51, 51, 0.25);
   /* new token: button shadow */
   --badge-shadow: inset 0px 2px 1px 0px rgba(0, 0, 0, 0.56);
   /* new token: badge inset shadow */
 }
-
-
 
 @layer base {
   * {

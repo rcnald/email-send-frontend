@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 
-export type UploadFileItem = {
+export interface UploadFileItem {
   id: string
   file: File
   name: string

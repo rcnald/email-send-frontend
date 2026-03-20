@@ -26,7 +26,7 @@ export const formatBytes: FormatByteFunction = (
 }
 
 export const generateUniqueId = (file: File): string => {
-  return `${file.name}-${file.lastModified}-${Math.random().toString(36).substring(2, 9)}`
+  return `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2, 9)}`
 }
 
 const validateFileSize = (file: File, maxSize: number): string | null => {

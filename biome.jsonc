@@ -1,8 +1,9 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
-  "extends": [
-    "ultracite"
-  ],
+  "$schema": "https://biomejs.dev/schemas/2.4.8/schema.json",
+  "extends": ["ultracite/biome/core", "ultracite/biome/react"],
+  "files": {
+    "includes": ["!!**/.agents"]
+  },
   "javascript": {
     "formatter": {
       "lineWidth": 80,
@@ -10,6 +11,11 @@
       "bracketSpacing": true,
       "semicolons": "asNeeded",
       "jsxQuoteStyle": "single"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
     }
   },
   "linter": {
@@ -26,17 +32,28 @@
       "style": {
         "useBlockStatements": "off"
       },
+      "correctness": {
+        "useImageSize": "off"
+      },
       "suspicious": {
         "noConsole": {
           "level": "error",
           "options": {
-            "allow": [
-              "error",
-              "warn"
-            ]
+            "allow": ["error", "warn"]
           }
         }
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": [".agents/**"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "enabled": false
+      }
+    }
+  ]
 }

@@ -1,148 +1,141 @@
 import {
-	flexRender,
-	type Header,
-	type Table as TableType,
-} from "@tanstack/react-table";
-import { ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react";
-import type { ComponentProps } from "react";
+  flexRender,
+  type Header,
+  type Table as TableType,
+} from "@tanstack/react-table"
+import { ChevronDownIcon, ChevronUpIcon, Loader2Icon } from "lucide-react"
+import type { ComponentProps, ReactNode } from "react"
 import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
-export type SelectClientTableItem = {
-	id: string;
-	name: string;
-	CNPJ: string;
-	accountant: {
-		name: string;
-		email: string;
-	};
-	status: "sent" | "not_send";
-};
+export interface SelectClientTableItem {
+  id: string
+  name: string
+  CNPJ: string
+  accountant: {
+    name: string
+    email: string
+  }
+  status: "sent" | "not_send"
+}
 
 export interface SelectClientTableProps extends ComponentProps<"table"> {
-	table: TableType<SelectClientTableItem>;
-	isPending?: boolean;
+  table: TableType<SelectClientTableItem>
+  isPending?: boolean
 }
 
 const SORT_DIRECTION_ICONS = {
-	asc: (
-		<ChevronUpIcon
-			aria-hidden="true"
-			className="shrink-0 opacity-60"
-			size={16}
-		/>
-	),
-	desc: (
-		<ChevronDownIcon
-			aria-hidden="true"
-			className="shrink-0 opacity-60"
-			size={16}
-		/>
-	),
-};
+  asc: (
+    <ChevronUpIcon
+      aria-hidden='true'
+      className='shrink-0 opacity-60'
+      size={16}
+    />
+  ),
+  desc: (
+    <ChevronDownIcon
+      aria-hidden='true'
+      className='shrink-0 opacity-60'
+      size={16}
+    />
+  ),
+}
 
 const SortIcon = ({ direction }: { direction: false | "asc" | "desc" }) => {
-	if (!direction) return null;
+  if (!direction) return null
 
-	return SORT_DIRECTION_ICONS[direction];
-};
+  return SORT_DIRECTION_ICONS[direction]
+}
 
 export const SelectClientsTable = ({
-	table,
-	isPending = false,
-	...props
+  table,
+  isPending = false,
+  ...props
 }: SelectClientTableProps) => {
-	const defineContent = (header: Header<SelectClientTableItem, unknown>) => {
-		if (header.isPlaceholder) return null;
+  const defineContent = (header: Header<SelectClientTableItem, unknown>) => {
+    if (header.isPlaceholder) return null
 
-		const headerCanBeSorted = header.column.getCanSort();
+    const headerCanBeSorted = header.column.getCanSort()
 
-		if (headerCanBeSorted) {
-			return (
-				<button
-					className="flex h-full w-full cursor-pointer select-none items-center justify-between gap-2"
-					onClick={header.column.getToggleSortingHandler()}
-					type="button"
-				>
-					{flexRender(header.column.columnDef.header, header.getContext())}
-					<SortIcon direction={header.column.getIsSorted()} />
-				</button>
-			);
-		}
+    if (headerCanBeSorted) {
+      return (
+        <button
+          className='flex h-full w-full cursor-pointer select-none items-center justify-between gap-2'
+          onClick={header.column.getToggleSortingHandler()}
+          type='button'
+        >
+          {flexRender(header.column.columnDef.header, header.getContext())}
+          <SortIcon direction={header.column.getIsSorted()} />
+        </button>
+      )
+    }
 
-		return flexRender(header.column.columnDef.header, header.getContext());
-	};
+    return flexRender(header.column.columnDef.header, header.getContext())
+  }
 
-	const hasRows = table.getRowModel().rows.length > 0;
-	const visibleColumnsCount = table.getVisibleLeafColumns().length;
+  const hasRows = table.getRowModel().rows.length > 0
+  const visibleColumnsCount = table.getVisibleLeafColumns().length
+  let bodyContent: ReactNode
 
-	return (
-		<Table className="table-auto" {...props}>
-			<TableHeader>
-				{table.getHeaderGroups().map((headerGroup) => (
-					<TableRow className="hover:bg-transparent" key={headerGroup.id}>
-						{headerGroup.headers.map((header) => {
-							const headerContent = defineContent(header);
+  if (isPending) {
+    bodyContent = (
+      <TableRow>
+        <TableCell className='h-24 text-center' colSpan={visibleColumnsCount}>
+          <span className='inline-flex items-center gap-2 text-muted-foreground text-sm'>
+            <Loader2Icon aria-hidden='true' className='size-4 animate-spin' />
+            Carregando clientes...
+          </span>
+        </TableCell>
+      </TableRow>
+    )
+  } else if (hasRows) {
+    bodyContent = table.getRowModel().rows.map((row) => (
+      <TableRow data-state={row.getIsSelected() && "selected"} key={row.id}>
+        {row.getVisibleCells().map((cell) => (
+          <TableCell className='last:py-0' key={cell.id}>
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        ))}
+      </TableRow>
+    ))
+  } else {
+    bodyContent = (
+      <TableRow>
+        <TableCell className='h-24 text-center' colSpan={visibleColumnsCount}>
+          Sem resultados.
+        </TableCell>
+      </TableRow>
+    )
+  }
 
-							return (
-								<TableHead
-									className="h-11"
-									key={header.id}
-									style={{ width: `${header.getSize()}px` }}
-								>
-									{headerContent}
-								</TableHead>
-							);
-						})}
-					</TableRow>
-				))}
-			</TableHeader>
-			<TableBody>
-				{isPending ? (
-					<TableRow>
-						<TableCell
-							className="h-24 text-center"
-							colSpan={visibleColumnsCount}
-						>
-							<span className="inline-flex items-center gap-2 text-muted-foreground text-sm">
-								<Loader2Icon
-									aria-hidden="true"
-									className="size-4 animate-spin"
-								/>
-								Carregando clientes...
-							</span>
-						</TableCell>
-					</TableRow>
-				) : hasRows ? (
-					table.getRowModel().rows.map((row) => (
-						<TableRow
-							data-state={row.getIsSelected() && "selected"}
-							key={row.id}
-						>
-							{row.getVisibleCells().map((cell) => (
-								<TableCell className="last:py-0" key={cell.id}>
-									{flexRender(cell.column.columnDef.cell, cell.getContext())}
-								</TableCell>
-							))}
-						</TableRow>
-					))
-				) : (
-					<TableRow>
-						<TableCell
-							className="h-24 text-center"
-							colSpan={visibleColumnsCount}
-						>
-							Sem resultados.
-						</TableCell>
-					</TableRow>
-				)}
-			</TableBody>
-		</Table>
-	);
-};
+  return (
+    <Table className='table-auto' {...props}>
+      <TableHeader>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow className='hover:bg-transparent' key={headerGroup.id}>
+            {headerGroup.headers.map((header) => {
+              const headerContent = defineContent(header)
+
+              return (
+                <TableHead
+                  className='h-11'
+                  key={header.id}
+                  style={{ width: `${header.getSize()}px` }}
+                >
+                  {headerContent}
+                </TableHead>
+              )
+            })}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>{bodyContent}</TableBody>
+    </Table>
+  )
+}

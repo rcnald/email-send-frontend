@@ -9,8 +9,6 @@
     "webRoot": "$ZED_WORKTREE_ROOT",
     "runtimeExecutable": "stable",
     "console": "integratedTerminal",
-    "skipFiles": [
-      "**/node_modules/**"
-    ]
+    "skipFiles": ["**/node_modules/**"]
   }
 ]

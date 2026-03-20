@@ -33,23 +33,23 @@
 // Optimized import for Next.js (reduces client JS bundle)
 import * as motion from "motion/react-client"
 
-// Re-export everything from motion
-export { motion }
 
 // Also export commonly used components
 export {
   AnimatePresence,
-  MotionConfig,
-  LazyMotion,
   LayoutGroup,
+  LazyMotion,
+  MotionConfig,
+  useAnimate,
+  useDragControls,
+  useInView,
   useMotionValue,
-  useTransform,
   useScroll,
   useSpring,
-  useAnimate,
-  useInView,
-  useDragControls,
+  useTransform,
 } from "motion/react-client"
+// Re-export everything from motion
+export { motion }
 
 /**
  * USAGE IN SERVER COMPONENTS
@@ -81,8 +81,8 @@ export {
 
 "use client"
 
-import { motion, AnimatePresence } from "motion/react-client"
-import { useState, ReactNode } from "react"
+import { AnimatePresence, motion } from "motion/react-client"
+import { ReactNode, useState } from "react"
 
 interface AnimatedModalProps {
   trigger: ReactNode
@@ -106,28 +106,28 @@ export function AnimatedModal({ trigger, title, children }: AnimatedModalProps) 
           <>
             {/* Backdrop */}
             <motion.div
-              key="backdrop"
-              initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
               className="fixed inset-0 bg-black/50 z-40"
+              exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              key="backdrop"
+              onClick={() => setIsOpen(false)}
             />
 
             {/* Dialog */}
             <motion.dialog
-              key="dialog"
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", damping: 20, stiffness: 300 }}
               className="fixed inset-0 m-auto w-full max-w-md h-fit bg-white rounded-lg shadow-xl z-50 p-6"
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              key="dialog"
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
             >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">{title}</h2>
                 <button
-                  onClick={() => setIsOpen(false)}
                   className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setIsOpen(false)}
                 >
                   ✕
                 </button>
@@ -233,9 +233,9 @@ interface PageTransitionProps {
 export function PageTransition({ children }: PageTransitionProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.3 }}
     >
       {children}
@@ -292,16 +292,16 @@ interface AnimatedProductCardProps {
 export function AnimatedProductCard({ product, index }: AnimatedProductCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      className="p-4 bg-white border rounded-lg shadow-sm cursor-pointer"
+      initial={{ opacity: 0, y: 20 }}
       transition={{ delay: index * 0.1 }} // Stagger
       whileHover={{ scale: 1.05 }}
-      className="p-4 bg-white border rounded-lg shadow-sm cursor-pointer"
     >
       <img
-        src={product.image}
         alt={product.name}
         className="w-full h-48 object-cover rounded mb-4"
+        src={product.image}
       />
       <h3 className="text-lg font-bold">{product.name}</h3>
       <p className="text-gray-600">${product.price}</p>
@@ -446,14 +446,14 @@ export function AnimatedProductCard({ product, index }: AnimatedProductCardProps
  */
 
 import type {
-  HTMLMotionProps,
-  SVGMotionProps,
-  Variants,
-  Target,
-  Transition,
-  MotionValue,
   AnimationControls,
   DragControls,
+  HTMLMotionProps,
+  MotionValue,
+  SVGMotionProps,
+  Target,
+  Transition,
+  Variants,
 } from "motion/react-client"
 
 // Example: Typed motion component props

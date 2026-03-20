@@ -30,10 +30,10 @@ import { useState } from "react"
 export function FadeInBox() {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
       className="p-6 bg-blue-100 rounded-lg"
+      initial={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.5 }}
     >
       <h2 className="text-xl font-bold">I fade in and slide up!</h2>
       <p className="text-gray-700">Basic animation example</p>
@@ -48,9 +48,9 @@ export function FadeInBox() {
 export function InteractiveButton() {
   return (
     <motion.button
+      className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold"
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
-      className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold"
     >
       Hover and Click Me
     </motion.button>
@@ -91,16 +91,16 @@ export function StaggeredList() {
 
   return (
     <motion.ul
-      variants={containerVariants}
-      initial="hidden"
       animate="show"
       className="space-y-2"
+      initial="hidden"
+      variants={containerVariants}
     >
       {items.map((item) => (
         <motion.li
+          className="p-4 bg-white border rounded-lg shadow-sm"
           key={item.id}
           variants={itemVariants}
-          className="p-4 bg-white border rounded-lg shadow-sm"
         >
           {item.text}
         </motion.li>
@@ -122,14 +122,14 @@ export function SpringButton() {
         scale: isActive ? 1.2 : 1,
         rotate: isActive ? 180 : 0,
       }}
+      className="w-16 h-16 bg-purple-600 text-white rounded-full"
+      onClick={() => setIsActive(!isActive)}
       transition={{
         type: "spring",
         stiffness: 300,  // Higher = more sudden movement
         damping: 10,     // Higher = less oscillation
         mass: 1,         // Higher = more lethargic
       }}
-      onClick={() => setIsActive(!isActive)}
-      className="w-16 h-16 bg-purple-600 text-white rounded-full"
     >
       🎨
     </motion.button>
@@ -148,6 +148,7 @@ export function KeyframeAnimation() {
         rotate: [0, 0, 180, 180, 0],
         borderRadius: ["10%", "10%", "50%", "50%", "10%"],
       }}
+      className="w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600"
       transition={{
         duration: 2,
         ease: "easeInOut",
@@ -155,7 +156,6 @@ export function KeyframeAnimation() {
         repeat: Infinity,
         repeatDelay: 1,
       }}
-      className="w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600"
     />
   )
 }
@@ -168,11 +168,11 @@ export function DraggableBox() {
   return (
     <div className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
       <motion.div
+        className="absolute w-16 h-16 bg-red-500 rounded-lg cursor-grab active:cursor-grabbing flex items-center justify-center text-white font-bold"
         drag
         dragConstraints={{ left: 0, right: 300, top: 0, bottom: 200 }}
         dragElastic={0.2} // Elasticity at constraints (0-1)
         dragMomentum={false} // Disable momentum/inertia
-        className="absolute w-16 h-16 bg-red-500 rounded-lg cursor-grab active:cursor-grabbing flex items-center justify-center text-white font-bold"
       >
         DRAG
       </motion.div>
@@ -187,12 +187,12 @@ export function DraggableBox() {
 export function ColorChangeCard() {
   return (
     <motion.div
+      className="p-6 bg-gray-200 text-gray-900 rounded-lg cursor-pointer"
+      transition={{ duration: 0.3 }}
       whileHover={{
         backgroundColor: "#3b82f6", // Tailwind blue-600
         color: "#ffffff",
       }}
-      transition={{ duration: 0.3 }}
-      className="p-6 bg-gray-200 text-gray-900 rounded-lg cursor-pointer"
     >
       <h3 className="text-lg font-bold">Hover me!</h3>
       <p>Background and text color change on hover</p>
@@ -213,10 +213,10 @@ interface AnimatedCardProps {
 export function AnimatedCard({ title, description, delay = 0 }: AnimatedCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
       className="p-6 bg-white border rounded-lg shadow-sm"
+      initial={{ opacity: 0, y: 20 }}
+      transition={{ delay, duration: 0.5 }}
     >
       <h3 className="text-xl font-bold mb-2">{title}</h3>
       <p className="text-gray-700">{description}</p>
@@ -236,8 +236,8 @@ export function TailwindIntegration() {
 
       {/* ✅ Correct - Let Motion handle animations, Tailwind for styles */}
       <motion.div
-        whileHover={{ scale: 1.05 }}
         className="px-6 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg"
+        whileHover={{ scale: 1.05 }}
       >
         Tailwind styles + Motion animations (no transition classes)
       </motion.div>
@@ -294,19 +294,19 @@ export function AnimatedExamples() {
         <h2 className="text-2xl font-bold mb-4">8. TypeScript Example</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <AnimatedCard
-            title="Card 1"
-            description="First card with no delay"
             delay={0}
+            description="First card with no delay"
+            title="Card 1"
           />
           <AnimatedCard
-            title="Card 2"
-            description="Second card with 0.2s delay"
             delay={0.2}
+            description="Second card with 0.2s delay"
+            title="Card 2"
           />
           <AnimatedCard
-            title="Card 3"
-            description="Third card with 0.4s delay"
             delay={0.4}
+            description="Third card with 0.4s delay"
+            title="Card 3"
           />
         </div>
       </section>

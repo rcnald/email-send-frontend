@@ -5,7 +5,7 @@ import React from "react"
 import { cn } from "@/lib/utils"
 
 // Define CardContext
-type CardContextType = {
+interface CardContextType {
   variant: "default" | "accent"
 }
 

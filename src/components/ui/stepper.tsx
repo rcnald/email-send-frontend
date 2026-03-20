@@ -12,13 +12,13 @@ import {
 import { useLocation, useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
 
-type StepperContextValue = {
+interface StepperContextValue {
   activeStep: number
   setActiveStep: (step: number) => void
   orientation: "horizontal" | "vertical"
 }
 
-type StepItemContextValue = {
+interface StepItemContextValue {
   step: number
   state: StepState
   isDisabled: boolean

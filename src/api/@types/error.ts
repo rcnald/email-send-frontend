@@ -1,4 +1,4 @@
-export type ApiErrorData = {
+export interface ApiErrorData {
   code: string
   message: string
   data?: {

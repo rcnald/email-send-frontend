@@ -1,14 +1,14 @@
-import { api } from "@/lib/axios";
+import { api } from "@/lib/axios"
 
 export interface GetProfileResponse {
-	name: string;
-	email: string;
+  name: string
+  email: string
 }
 
 export const getProfile = async (): Promise<GetProfileResponse> => {
-	const response = await api.get<GetProfileResponse>("/me", {
-		withCredentials: true,
-	});
+  const response = await api.get<GetProfileResponse>("/me", {
+    withCredentials: true,
+  })
 
-	return response.data;
-};
+  return response.data
+}

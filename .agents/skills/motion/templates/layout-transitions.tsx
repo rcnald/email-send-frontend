@@ -14,8 +14,8 @@
  * For Next.js App Router, add "use client" directive at top of file.
  */
 
-import { motion, LayoutGroup } from "motion/react"
-import { useState, ReactNode } from "react"
+import { LayoutGroup, motion } from "motion/react"
+import { ReactNode, useState } from "react"
 
 // ============================================================================
 // PATTERN 1: Basic Layout Animation
@@ -30,21 +30,21 @@ export function ExpandableCard() {
 
   return (
     <motion.div
-      layout // Enable FLIP layout animations
-      onClick={() => setIsExpanded(!isExpanded)}
       className={`cursor-pointer bg-white border rounded-lg shadow-md p-6 ${
         isExpanded ? "w-full" : "w-64"
       }`}
+      layout // Enable FLIP layout animations
+      onClick={() => setIsExpanded(!isExpanded)}
       transition={{ layout: { duration: 0.3, type: "spring" } }}
     >
-      <motion.h3 layout className="text-xl font-bold mb-2">
+      <motion.h3 className="text-xl font-bold mb-2"layout >
         Click to Expand
       </motion.h3>
 
       {isExpanded && (
         <motion.div
-          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
+          initial={{ opacity: 0 }}
           transition={{ delay: 0.2 }}
         >
           <p>This content appears when expanded.</p>
@@ -92,12 +92,12 @@ export function SharedElementExample() {
         <div className="grid grid-cols-3 gap-4">
           {cards.map((card) => (
             <motion.div
+              className={`${card.color} text-white p-6 rounded-lg cursor-pointer h-32 flex items-center justify-center`}
               key={card.id}
               layoutId={card.id} // Connect this element to detail view
               onClick={() => setSelectedCard(card)}
-              className={`${card.color} text-white p-6 rounded-lg cursor-pointer h-32 flex items-center justify-center`}
             >
-              <motion.h3 layoutId={`title-${card.id}`} className="text-xl font-bold">
+              <motion.h3 className="text-xl font-bold"layoutId={`title-${card.id}`} >
                 {card.title}
               </motion.h3>
             </motion.div>
@@ -108,18 +108,18 @@ export function SharedElementExample() {
       {/* Detail view */}
       {selectedCard && (
         <motion.div
+          className={`${selectedCard.color} text-white p-12 rounded-lg cursor-pointer`}
           layoutId={selectedCard.id} // Same layoutId = smooth transition
           onClick={() => setSelectedCard(null)}
-          className={`${selectedCard.color} text-white p-12 rounded-lg cursor-pointer`}
         >
-          <motion.h3 layoutId={`title-${selectedCard.id}`} className="text-4xl font-bold mb-4">
+          <motion.h3 className="text-4xl font-bold mb-4"layoutId={`title-${selectedCard.id}`} >
             {selectedCard.title}
           </motion.h3>
           <motion.p
-            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
             className="text-xl"
+            initial={{ opacity: 0 }}
+            transition={{ delay: 0.2 }}
           >
             {selectedCard.description}
           </motion.p>
@@ -166,10 +166,10 @@ export function AnimatedList() {
   return (
     <div>
       <div className="flex gap-2 mb-4">
-        <button onClick={shuffle} className="px-4 py-2 bg-blue-600 text-white rounded">
+        <button className="px-4 py-2 bg-blue-600 text-white rounded"onClick={shuffle} >
           Shuffle
         </button>
-        <button onClick={reverse} className="px-4 py-2 bg-purple-600 text-white rounded">
+        <button className="px-4 py-2 bg-purple-600 text-white rounded"onClick={reverse} >
           Reverse
         </button>
       </div>
@@ -177,9 +177,9 @@ export function AnimatedList() {
       <div className="space-y-2">
         {items.map((item) => (
           <motion.div
+            className="p-4 bg-white border rounded-lg shadow-sm"
             key={item.id}
             layout // Animate position changes automatically
-            className="p-4 bg-white border rounded-lg shadow-sm"
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
             {item.text}
@@ -217,17 +217,17 @@ export function TabPanel({ tabs }: TabPanelProps) {
         <div className="flex gap-4 border-b border-gray-200">
           {tabs.map((tab) => (
             <button
+              className="relative px-4 py-2"
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="relative px-4 py-2"
             >
               {tab.label}
 
               {/* Shared underline */}
               {activeTab === tab.id && (
                 <motion.div
-                  layoutId="underline" // Shared within LayoutGroup
                   className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
+                  layoutId="underline" // Shared within LayoutGroup
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
@@ -275,22 +275,22 @@ export function ScrollableList() {
 
   return (
     <motion.div
-      layoutScroll // CRITICAL: Fixes animations in scrolled containers
       className="h-96 overflow-auto border border-gray-200 rounded-lg p-4 space-y-2"
+      layoutScroll // CRITICAL: Fixes animations in scrolled containers
     >
       {items.map((item) => (
         <motion.div
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-4 bg-white border rounded-lg shadow-sm flex justify-between items-center"
+          exit={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           key={item.id}
           layout
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          className="p-4 bg-white border rounded-lg shadow-sm flex justify-between items-center"
         >
           <span>{item.text}</span>
           <button
-            onClick={() => removeItem(item.id)}
             className="px-3 py-1 bg-red-500 text-white rounded text-sm"
+            onClick={() => removeItem(item.id)}
           >
             Remove
           </button>
@@ -320,17 +320,17 @@ export function FixedModal() {
   return (
     <>
       <button
-        onClick={() => setIsOpen(!isOpen)}
         className="px-4 py-2 bg-blue-600 text-white rounded"
+        onClick={() => setIsOpen(!isOpen)}
       >
         Toggle Fixed Modal
       </button>
 
       {isOpen && (
         <motion.div
-          layoutRoot // CRITICAL: Fixes animations in fixed elements
-          layout
           className="fixed bottom-4 right-4 w-64 bg-white border rounded-lg shadow-2xl p-4 z-50"
+          layout
+          layoutRoot // CRITICAL: Fixes animations in fixed elements
         >
           <h3 className="font-bold mb-2">Fixed Modal</h3>
           <p className="text-sm text-gray-700">
@@ -366,32 +366,32 @@ export function ViewSwitcher() {
     <div>
       <div className="flex gap-2 mb-4">
         <button
-          onClick={() => setView("grid")}
           className={`px-4 py-2 rounded ${
             view === "grid" ? "bg-blue-600 text-white" : "bg-gray-200"
           }`}
+          onClick={() => setView("grid")}
         >
           Grid
         </button>
         <button
-          onClick={() => setView("list")}
           className={`px-4 py-2 rounded ${
             view === "list" ? "bg-blue-600 text-white" : "bg-gray-200"
           }`}
+          onClick={() => setView("list")}
         >
           List
         </button>
       </div>
 
       <motion.div
-        layout
         className={view === "grid" ? "grid grid-cols-3 gap-4" : "space-y-2"}
+        layout
       >
         {items.map((item) => (
           <motion.div
+            className="p-6 bg-white border rounded-lg shadow-sm"
             key={item.id}
             layout
-            className="p-6 bg-white border rounded-lg shadow-sm"
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
             <h3 className="font-bold">{item.title}</h3>
@@ -423,14 +423,14 @@ export function DragToReorder() {
     <div className="space-y-2">
       {items.map((item, index) => (
         <motion.div
-          key={item.id}
-          layout
+          className="p-4 bg-white border rounded-lg shadow-sm cursor-grab active:cursor-grabbing"
           drag="y"
           dragConstraints={{ top: 0, bottom: 0 }}
           dragElastic={0.1}
-          whileDrag={{ scale: 1.05, boxShadow: "0 10px 40px rgba(0,0,0,0.2)" }}
-          className="p-4 bg-white border rounded-lg shadow-sm cursor-grab active:cursor-grabbing"
+          key={item.id}
+          layout
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          whileDrag={{ scale: 1.05, boxShadow: "0 10px 40px rgba(0,0,0,0.2)" }}
         >
           <div className="flex items-center gap-3">
             <span className="text-gray-400">☰</span>
@@ -471,16 +471,16 @@ export function MasonryLayout() {
 
   return (
     <div>
-      <button onClick={shuffle} className="px-4 py-2 bg-blue-600 text-white rounded mb-4">
+      <button className="px-4 py-2 bg-blue-600 text-white rounded mb-4"onClick={shuffle} >
         Shuffle
       </button>
 
       <div className="columns-3 gap-4">
         {items.map((item) => (
           <motion.div
+            className="mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg p-4 text-white font-bold break-inside-avoid"
             key={item.id}
             layout
-            className="mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg p-4 text-white font-bold break-inside-avoid"
             style={{ height: item.height }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >

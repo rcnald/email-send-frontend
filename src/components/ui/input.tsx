@@ -1,72 +1,72 @@
-import type * as React from "react";
+import type * as React from "react"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
 function InputRoot({ className, ...props }: React.ComponentProps<"div">) {
-	return (
-		<div
-			className={cn(
-				"flex h-10 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-				className,
-			)}
-			{...props}
-		/>
-	);
+  return (
+    <div
+      className={cn(
+        "flex h-10 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none transition-[color,box-shadow] focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+      {...props}
+    />
+  )
 }
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
-	return (
-		<input
-			className={cn(
-				"flex h-10 w-full min-w-0 rounded border border-border bg-input px-3 py-1 font-sans text-xs shadow-input outline-none transition-[color,box-shadow] file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-input-placeholder disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-				"focus-visible:border-ring focus-visible:ring-[1px] focus-visible:ring-ring/50",
-				"aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
-				type === "search" &&
-					"[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none",
-				type === "file" &&
-					"p-0 pr-3 text-muted-foreground/70 italic file:me-3 file:h-full file:border-0 file:border-input file:border-r file:border-solid file:bg-transparent file:px-3 file:font-medium file:text-foreground file:text-sm file:not-italic",
-				className,
-			)}
-			data-slot="input"
-			type={type}
-			{...props}
-		/>
-	);
+  return (
+    <input
+      className={cn(
+        "flex h-10 w-full min-w-0 rounded border border-border bg-input px-3 py-1 font-sans text-xs shadow-input outline-none transition-[color,box-shadow] file:inline-flex file:h-7 file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-input-placeholder disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        "focus-visible:border-ring focus-visible:ring-[1px] focus-visible:ring-ring/50",
+        "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
+        type === "search" &&
+          "[&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none [&::-webkit-search-results-button]:appearance-none [&::-webkit-search-results-decoration]:appearance-none",
+        type === "file" &&
+          "p-0 pr-3 text-muted-foreground/70 italic file:me-3 file:h-full file:border-0 file:border-input file:border-r file:border-solid file:bg-transparent file:px-3 file:font-medium file:text-foreground file:text-sm file:not-italic",
+        className
+      )}
+      data-slot='input'
+      type={type}
+      {...props}
+    />
+  )
 }
 
-type InputFeedbackVariant = "error" | "warning" | "success" | "feedback";
+type InputFeedbackVariant = "error" | "warning" | "success" | "feedback"
 
 function InputFeedback({
-	className,
-	children,
-	variant = "error",
-	when = true,
-	...props
+  className,
+  children,
+  variant = "error",
+  when = true,
+  ...props
 }: React.ComponentProps<"p"> & {
-	variant?: InputFeedbackVariant;
-	when?: boolean;
+  variant?: InputFeedbackVariant
+  when?: boolean
 }) {
-	const shouldShow = when && Boolean(children);
+  const shouldShow = when && Boolean(children)
 
-	const variantStyles = {
-		error: "text-destructive",
-		warning: "text-yellow-600 dark:text-yellow-500",
-		success: "text-green-600 dark:text-green-500",
-		feedback: "text-muted-foreground",
-	};
+  const variantStyles = {
+    error: "text-destructive",
+    warning: "text-yellow-600 dark:text-yellow-500",
+    success: "text-green-600 dark:text-green-500",
+    feedback: "text-muted-foreground",
+  }
 
-	return (
-		<p
-			className={cn(
-				"mt-1 min-h-5 text-sm leading-5",
-				variantStyles[variant],
-				className,
-			)}
-			{...props}
-		>
-			{shouldShow ? children : null}
-		</p>
-	);
+  return (
+    <p
+      className={cn(
+        "mt-1 min-h-5 text-sm leading-5",
+        variantStyles[variant],
+        className
+      )}
+      {...props}
+    >
+      {shouldShow ? children : null}
+    </p>
+  )
 }
 
-export { Input, InputFeedback, InputRoot };
+export { Input, InputFeedback, InputRoot }

@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 
-export type Client = {
+export interface Client {
   id: string
   name: string
   CNPJ: string
