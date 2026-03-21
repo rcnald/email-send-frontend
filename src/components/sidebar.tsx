@@ -1,7 +1,21 @@
 import { useMutation } from "@tanstack/react-query"
-import Cookies from "js-cookie"
-import { ChevronRight, LogOut, Send, Upload, User } from "lucide-react"
-import type { ComponentProps, ElementType } from "react"
+import {
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  LogOut,
+  Send,
+  Upload,
+  User,
+} from "lucide-react"
+import { motion } from "motion/react"
+import {
+  type ComponentProps,
+  type ElementType,
+  type MouseEvent,
+  useEffect,
+  useState,
+} from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { logout } from "@/api/logout"
 import {
@@ -29,9 +43,75 @@ interface WorkflowItem {
   canNavigate: boolean
 }
 
-export function Sidebar({ className, ...props }: SidebarProps) {
+const getWorkflowItemStateClassName = (
+  isDisabled: boolean,
+  isActive: boolean
+) => {
+  if (isDisabled) {
+    return "pointer-events-none text-sidebar-foreground/45"
+  }
+
+  if (isActive) {
+    return "bg-sidebar-accent text-sidebar-primary"
+  }
+
+  return "text-sidebar-foreground/85 hover:bg-sidebar-accent/45 hover:text-sidebar-foreground"
+}
+
+const DESKTOP_BREAKPOINT = "(min-width: 640px)"
+
+function useSidebarResponsiveState() {
+  const [isDesktop, setIsDesktop] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(true)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(DESKTOP_BREAKPOINT)
+
+    const syncViewport = () => {
+      const desktop = mediaQuery.matches
+      setIsDesktop(desktop)
+      setIsCollapsed(!desktop)
+    }
+
+    syncViewport()
+    mediaQuery.addEventListener("change", syncViewport)
+
+    return () => {
+      mediaQuery.removeEventListener("change", syncViewport)
+    }
+  }, [])
+
+  const sidebarAnimation = isDesktop
+    ? {
+        paddingBottom: 16,
+        paddingLeft: 8,
+        paddingRight: 8,
+        paddingTop: 16,
+        width: isCollapsed ? 60 : 272,
+        x: 0,
+      }
+    : {
+        paddingBottom: 16,
+        paddingLeft: 8,
+        paddingRight: 8,
+        paddingTop: 16,
+        width: isCollapsed ? 60 : 272,
+        x: 0,
+      }
+
+  return {
+    isCollapsed,
+    isDesktop,
+    setIsCollapsed,
+    sidebarAnimation,
+  }
+}
+
+export function Sidebar({ className }: SidebarProps) {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const { isCollapsed, isDesktop, setIsCollapsed, sidebarAnimation } =
+    useSidebarResponsiveState()
 
   const hasFilesToProceed = useFileStore(
     (state) => state.uploadedFiles.length > 0
@@ -45,6 +125,11 @@ export function Sidebar({ className, ...props }: SidebarProps) {
 
   const { mutateAsync: logoutMutation, isPending: isLoggingOut } = useMutation({
     mutationFn: logout,
+    onSuccess: () => {
+      clearUploadedFiles()
+      clearClient()
+      navigate("/sign-in")
+    },
   })
 
   const workflowItems: WorkflowItem[] = [
@@ -69,75 +154,131 @@ export function Sidebar({ className, ...props }: SidebarProps) {
   ]
 
   const handleLogout = async () => {
-    try {
-      await logoutMutation()
-    } finally {
-      Cookies.remove("accessToken")
-      Cookies.remove("refreshToken")
-      clearClient()
-      clearUploadedFiles()
-      navigate("/sign-in", { replace: true })
-    }
+    await logoutMutation()
+  }
+
+  const handleToggleCollapsed = () => {
+    setIsCollapsed((state) => !state)
+  }
+
+  let sidebarPositionClassName = isCollapsed
+    ? "sticky top-0 z-auto"
+    : "fixed inset-y-0 left-0 z-40"
+
+  if (isDesktop) {
+    sidebarPositionClassName = "sticky top-0 z-auto"
   }
 
   return (
-    <aside
+    <motion.aside
+      animate={sidebarAnimation}
       className={cn(
-        "sticky top-0 flex h-screen w-full max-w-[272px] shrink-0 flex-col border-sidebar-border border-r bg-sidebar px-4 py-6 text-sidebar-foreground",
+        "flex h-screen shrink-0 flex-col overflow-hidden border-sidebar-border border-r bg-sidebar text-sidebar-foreground",
+        sidebarPositionClassName,
         className
       )}
-      {...props}
+      initial={false}
+      // onAnimationComplete={handleToggleCollapsed}
+      transition={{
+        duration: 0.18,
+        ease: [0.22, 1, 0.36, 1],
+        type: "tween",
+      }}
     >
+      <div className='mb-4 flex justify-center sm:justify-end'>
+        <Button
+          aria-label={isCollapsed ? "Expandir sidebar" : "Recolher sidebar"}
+          className='h-9 w-9 p-0 text-sidebar-primary hover:bg-sidebar-accent hover:text-sidebar-primary'
+          onClick={handleToggleCollapsed}
+          type='button'
+          variant='ghost'
+        >
+          {isCollapsed ? (
+            <ChevronsRight aria-hidden='true' size={16} />
+          ) : (
+            <ChevronsLeft aria-hidden='true' size={16} />
+          )}
+          <span className='sr-only'>
+            {isCollapsed ? "Expandir sidebar" : "Recolher sidebar"}
+          </span>
+        </Button>
+      </div>
+
       <div className='border-sidebar-border/80 border-t pt-5'>
-        <p className='mb-3 font-semibold text-[11px] text-sidebar-foreground/60 uppercase tracking-wide'>
-          Workflow
+        <p className='flex h-7'>
+          <span
+            className={cn(
+              "font-semibold text-[11px] text-sidebar-foreground/60 uppercase tracking-wide",
+              isCollapsed && "sr-only"
+            )}
+          >
+            Workflow
+          </span>
         </p>
 
         <nav aria-label='Workflow steps' className='flex flex-col gap-2'>
           {workflowItems.map((item) => {
             const isActive = pathname === item.pathname
+            const isDisabled = !item.canNavigate
             const Icon = item.icon
 
-            if (!item.canNavigate) {
-              return (
-                <button
-                  className='flex h-11 items-center gap-3 rounded-lg px-3 font-medium text-[15px] text-sidebar-foreground/45'
-                  disabled
-                  key={item.pathname}
-                  type='button'
-                >
-                  <Icon aria-hidden='true' size={16} />
-                  <span>{item.label}</span>
-                </button>
-              )
+            const labelAnimation = {
+              opacity: isCollapsed ? 0 : 1,
+              width: isCollapsed ? 0 : "auto",
             }
+            const itemStateClassName = getWorkflowItemStateClassName(
+              isDisabled,
+              isActive
+            )
 
             return (
               <Link
                 aria-current={isActive ? "page" : undefined}
+                aria-disabled={isDisabled ? true : undefined}
                 className={cn(
-                  "group flex h-11 items-center justify-between rounded-lg px-3 font-medium text-[15px] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70",
-                  isActive
-                    ? "bg-sidebar-accent text-sidebar-primary"
-                    : "text-sidebar-foreground/85 hover:bg-sidebar-accent/45 hover:text-sidebar-foreground"
+                  "group flex h-11 items-center justify-between gap-3 rounded-lg px-3 font-medium text-[15px] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70",
+                  itemStateClassName
                 )}
                 key={item.pathname}
+                onClick={
+                  isDisabled
+                    ? (event: MouseEvent<HTMLAnchorElement>) =>
+                        event.preventDefault()
+                    : undefined
+                }
+                tabIndex={isDisabled ? -1 : undefined}
                 to={item.pathname}
               >
-                <span className='flex items-center gap-3'>
-                  <Icon aria-hidden='true' size={16} />
-                  <span>{item.label}</span>
+                <span className='flex min-w-0 items-center gap-3'>
+                  <span className='flex w-4 shrink-0 justify-center'>
+                    <Icon aria-hidden='true' size={16} />
+                  </span>
+                  <motion.span
+                    animate={labelAnimation}
+                    className='overflow-hidden whitespace-nowrap'
+                    initial={false}
+                    transition={{ duration: 0.18, ease: "easeOut" }}
+                  >
+                    {item.label}
+                  </motion.span>
                 </span>
-                <ChevronRight
-                  aria-hidden='true'
-                  className={cn(
-                    "transition-transform duration-200",
-                    isActive
-                      ? "text-sidebar-primary"
-                      : "translate-x-0.5 text-sidebar-foreground/45 group-hover:translate-x-1 group-hover:text-sidebar-foreground/70"
-                  )}
-                  size={16}
-                />
+                <motion.span
+                  animate={{ opacity: isCollapsed ? 0 : 1 }}
+                  className='flex w-4 shrink-0 justify-center'
+                  initial={false}
+                  transition={{ duration: 0.16, ease: "easeOut" }}
+                >
+                  <ChevronRight
+                    aria-hidden='true'
+                    className={cn(
+                      "transition-transform duration-200",
+                      isActive
+                        ? "text-sidebar-primary"
+                        : "translate-x-0.5 text-sidebar-foreground/45 group-hover:translate-x-1 group-hover:text-sidebar-foreground/70"
+                    )}
+                    size={16}
+                  />
+                </motion.span>
               </Link>
             )
           })}
@@ -148,12 +289,25 @@ export function Sidebar({ className, ...props }: SidebarProps) {
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
-              className='w-full justify-start gap-3 px-3 text-sidebar-primary hover:bg-sidebar-accent hover:text-sidebar-primary'
+              className={cn(
+                "w-full gap-3 px-3 text-sidebar-primary hover:bg-sidebar-accent hover:text-sidebar-primary",
+                "justify-start"
+              )}
               type='button'
               variant='ghost'
             >
               <LogOut aria-hidden='true' size={16} />
-              Sair
+              <motion.span
+                animate={{
+                  opacity: isCollapsed ? 0 : 1,
+                  width: isCollapsed ? 0 : "auto",
+                }}
+                className='overflow-hidden whitespace-nowrap'
+                initial={false}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+              >
+                Sair
+              </motion.span>
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -179,6 +333,6 @@ export function Sidebar({ className, ...props }: SidebarProps) {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </aside>
+    </motion.aside>
   )
 }
