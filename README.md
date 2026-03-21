@@ -88,12 +88,12 @@ Desenvolvido com **React 19** e **TypeScript**, seguindo princípios de **Clean 
 
 ### 1. Clone o repositório:
 ```bash
-git clone https://github.com/rcnald/email-send-frontend.git
+git clone https://github.com/rcnald/invoice-frontend.git
 ```
 
 ### 2. Acesse a pasta do projeto:
 ```bash
-cd email-send-frontend
+cd invoice-frontend
 ```
 
 ### 3. Instale as dependências:
@@ -232,5 +232,5 @@ VITE_ENVIRONMENT=production
 ```
 ---
 
-**Repositório Backend:** [email-send-backend](https://github.com/rcnald/email-send-backend)  
+**Repositório Backend:** [invoice-backend](https://github.com/rcnald/invoice-backend)  
 **Desenvolvido com ❤️ por [rcnald](https://github.com/rcnald)**
