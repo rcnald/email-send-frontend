@@ -21,6 +21,7 @@ import { fetchClients } from "@/api/fetch-clients"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { PageSeo } from "@/lib/seo"
 import { maskCNPJ } from "@/lib/utils"
 import { useClientStore } from "@/store/client-store"
 import { useFileStore } from "@/store/file-store"
@@ -238,6 +239,10 @@ export const SelectClientStep = () => {
 
   return (
     <div className='w-full space-y-6 self-start'>
+      <PageSeo
+        description='Selecione o cliente destinatario antes de concluir o envio de documentos fiscais no Invoice.'
+        title='Select Client'
+      />
       <section className='space-y-2 border-border border-t pt-5'>
         <h1 className='font-semibold text-3xl text-foreground tracking-tight'>
           Selecionar Clientes

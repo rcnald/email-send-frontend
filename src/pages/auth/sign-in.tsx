@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Input, InputFeedback } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getApiErrorMessages } from "@/lib/axios"
+import { PageSeo } from "@/lib/seo"
 
 const signInSchema = z.object({
   email: z.email("Email inválido"),
@@ -74,6 +75,10 @@ export const SignIn = () => {
 
   return (
     <div className='relative flex w-full max-w-[335px] flex-col items-center gap-8'>
+      <PageSeo
+        description='Acesse sua conta Invoice para enviar documentos fiscais com seguranca e rapidez.'
+        title='Sign In'
+      />
       <div className='flex flex-col items-center gap-8'>
         <div className='flex w-fit rounded-sm border-gradient bg-linear-(--primary-gradient) p-2'>
           <EmailIcon className='text-2xl text-pink-start' />

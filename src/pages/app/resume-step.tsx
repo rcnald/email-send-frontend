@@ -18,6 +18,7 @@ import { sendEmail } from "@/api/send-email"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { formatBytes } from "@/hooks/use-file-upload.utils"
+import { PageSeo } from "@/lib/seo"
 import { cn, maskCNPJ } from "@/lib/utils"
 import { useClientStore } from "@/store/client-store"
 import { useFileStore } from "@/store/file-store"
@@ -107,6 +108,10 @@ export const ResumeStep = () => {
 
   return (
     <div className='w-full space-y-6 self-start'>
+      <PageSeo
+        description='Revise cliente, arquivos e competencia fiscal para finalizar o envio de documentos no Invoice.'
+        title='Resume'
+      />
       <div className='grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_280px]'>
         <section className='space-y-4'>
           <article className='rounded-xl border border-border bg-card'>

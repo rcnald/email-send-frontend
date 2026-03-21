@@ -1,15 +1,23 @@
-# Sistema de Envio de Documentos Fiscais - Frontend
+# Invoice - Frontend
 
-**Versão:** 1.0  
-**Data:** 03/08/2025
+**Versão:** 1.1  
+**Data:** 21/03/2026
 
-Frontend da aplicação para envio de emails com arquivos fiscais. Uma solução moderna e intuitiva construída com React 18 e TypeScript, oferecendo upload otimizado, validação em tempo real e experiência de usuário fluida.
+Frontend da aplicação para envio de emails com arquivos fiscais. Uma solução moderna e intuitiva construída com React 19 e TypeScript, oferecendo upload otimizado, validação em tempo real e experiência de usuário fluida.
 
 ## Histórico de Revisões
 
 | Versão | Data | Autor | Descrição |
 |--------|------|-------|-----------|
+| 1.1 | 21/03/2026 | Ronaldo Junior | Rebranding para Invoice, adoção de react-helmet-async para SEO, títulos por página e favicon customizado |
 | 1.0 | 03/08/2025 | Ronaldo Junior | Documentação inicial do frontend com arquitetura React 18, sistema de upload avançado e integração com backend |
+
+## Atualizações Recentes (v1.1)
+
+• **Rebranding**: Nome da aplicação atualizado para **Invoice**  
+• **SEO**: Substituição da abordagem legada/deprecada por **react-helmet-async**  
+• **Títulos dinâmicos**: Padrão por rota no formato **`Página | Invoice`** (ex.: `Resume | Invoice`)  
+• **Favicon**: Novo favicon em `public/favicon.svg`, baseado no ícone `src/components/icons/email.tsx`
 
 ## Índice
 
@@ -48,12 +56,12 @@ O escopo do frontend abrange o desenvolvimento de uma interface web moderna que 
 
 O frontend é uma aplicação web Single Page Application (SPA) projetada para otimizar a experiência do usuário no processo de envio de documentos fiscais. A interface permite upload intuitivo de arquivos, seleção de clientes, e acompanhamento em tempo real do status de envio, garantindo transparência e confiabilidade em todo o processo.
 
-Desenvolvido com **React 18** e **TypeScript**, seguindo princípios de **Clean Code** e padrões modernos de desenvolvimento frontend. Utiliza **custom hooks** para lógica de negócio, **Zustand** para gerenciamento de estado global, e **componentes reutilizáveis** com foco em acessibilidade e performance.
+Desenvolvido com **React 19** e **TypeScript**, seguindo princípios de **Clean Code** e padrões modernos de desenvolvimento frontend. Utiliza **custom hooks** para lógica de negócio, **Zustand** para gerenciamento de estado global, e **componentes reutilizáveis** com foco em acessibilidade e performance.
 
 ## 3. Arquitetura e Tecnologias
 
 ### Core
-• **[React 18](https://react.dev/)** - Biblioteca para construção da interface com Concurrent Features  
+• **[React 19](https://react.dev/)** - Biblioteca para construção da interface com Concurrent Features  
 • **[TypeScript](https://typescriptlang.org/)** - Tipagem estática para maior segurança e DX  
 • **[Vite](https://vitejs.dev/)** - Build tool moderna com Hot Module Replacement  
 • **[React Router](https://reactrouter.com/)** - Roteamento declarativo com lazy loading  
@@ -72,6 +80,7 @@ Desenvolvido com **React 18** e **TypeScript**, seguindo princípios de **Clean 
 • **[Biome](https://biomejs.dev/)** - Linter e formatter ultra-rápido  
 • **[Ultracite](https://github.com/rcnald/ultracite)** - Regras de qualidade e boas práticas  
 • **[Vitest](https://vitest.dev/)** - Framework de testes com Vite  
+• **[react-helmet-async](https://github.com/staylor/react-helmet-async)** - Gerenciamento de metadados para SEO em aplicações React
 
 ## 4. Setup e Desenvolvimento
 
@@ -198,6 +207,9 @@ yarn build
 # Linting com Biome
 npm run lint
 yarn lint
+
+# Testes automatizados
+yarn test
 ```
 
 ## 8. Deploy

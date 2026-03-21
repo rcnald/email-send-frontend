@@ -2,6 +2,7 @@ import { ArrowRightIcon, CircleDotIcon } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { FileUpload } from "@/components/file-upload"
 import { Button } from "@/components/ui/button"
+import { PageSeo } from "@/lib/seo"
 import { useFileStore } from "@/store/file-store"
 
 const instructions = [
@@ -24,6 +25,10 @@ export const UploadStep = () => {
 
   return (
     <div className='w-full self-start'>
+      <PageSeo
+        description='Faça upload de arquivos ZIP com documentos fiscais para iniciar o envio no Invoice.'
+        title='Upload'
+      />
       <section className='mb-6 space-y-2'>
         <h1 className='font-semibold text-3xl text-foreground tracking-tight'>
           Upload de Documentos
