@@ -77,7 +77,7 @@ export const SignIn = () => {
     <div className='relative flex w-full max-w-[335px] flex-col items-center gap-8'>
       <PageSeo
         description='Acesse sua conta Invoice para enviar documentos fiscais com seguranca e rapidez.'
-        title='Sign In'
+        title='Entrar'
       />
       <div className='flex flex-col items-center gap-8'>
         <div className='flex w-fit rounded-sm border-gradient bg-linear-(--primary-gradient) p-2'>
